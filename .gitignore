@@ -1,0 +1,6 @@
+build
+ivy-lib
+ivy-task-lib
+eclipse_classes
+dist
+.ant-targets-build.xml
