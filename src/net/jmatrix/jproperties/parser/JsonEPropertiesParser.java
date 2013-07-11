@@ -3,8 +3,8 @@ package net.jmatrix.jproperties.parser;
 import java.io.File;
 import java.util.*;
 
-import net.jmatrix.eproperties.utils.JDK14LogConfig;
 import net.jmatrix.jproperties.JProperties;
+import net.jmatrix.jproperties.util.JDK14LogConfig;
 
 import org.apache.commons.logging.*;
 import org.codehaus.jackson.*;
