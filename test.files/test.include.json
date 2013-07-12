@@ -1,0 +1,10 @@
+
+{
+
+   "system":"$[method://java.lang.System.getProperties()]",
+   
+   "name":"Paul",
+   
+   "home":"My name is ${name}, my home is ${system->user.home}"
+   
+}

@@ -1,0 +1,15 @@
+
+/* hello world. */
+{
+   "foo":"bar",
+   "include":"$[include.json]",
+   "baz":"this should be bar: ${foo}",
+   
+   "nested":{
+	   "key":"value"
+   },
+   
+   "list":[{
+      "test":"test"}]
+}
+// goodbye world

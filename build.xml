@@ -99,8 +99,8 @@
     
     <!-- Assemble creates the deployable artifacts, like jars, wars, zips -->
     <target name="assemble" depends="compile-tests">
-        <copy todir="build/config">
-           <fileset dir="config" includes="**"/>
+        <copy todir="build/test.files">
+           <fileset dir="test.files" includes="**"/>
         </copy>
         <copy todir="build/jars">
            <fileset dir="jars" includes="**"/>
@@ -110,11 +110,13 @@
         <copy todir="build/docs">
             <fileset dir="docs" includes="manual/**"/>
         </copy>
+        
+        <!--
         <echo message="Setting version to ${version}"/>
         <replace dir="build/docs/manual" token="$${version}" value="${version}"/>
         <echo message="copying release.txt"/>
         <copy todir="build/docs/manual" file="release.txt"/>
-        
+        -->
         
         <copy todir="build/bin">
            <fileset dir="bin" includes="**"/>
