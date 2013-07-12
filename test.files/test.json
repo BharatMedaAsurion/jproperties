@@ -13,6 +13,8 @@
    "list":[{
       "test":"test"}],
    "mixed.list":[{"object":"value of foo is ${foo}"},
-        "String, value of foo is ${foo}"]
+        "String, value of foo is ${foo}"],
+        
+   "unresolved":"This will not resolve ${lkjljad}"
 }
 // goodbye world

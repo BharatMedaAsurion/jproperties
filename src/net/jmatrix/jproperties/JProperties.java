@@ -9,12 +9,21 @@ import org.apache.commons.logging.Log;
 
 
 /**
- * Values can be: 
+ * JProperties is a replacment for the classic java.util.Properties
+ * object that supports JSON based syntax, inclusion and substitution.
+ * 
+ * This allows any value in a property set to be any of:
  *   JProperties
+ *   List
  *   Boolean
  *   Number
  *   String
- *   
+ * 
+ * Further, complex properties sets can be broken into multiple files 
+ * using "includes" syntax to load additional properites from external
+ * locations based on URLs or method inclusion (very useful for system properties).
+ * 
+ *  
  */
 @SuppressWarnings("serial")
 public class JProperties implements Map<String, Object> {
@@ -74,8 +83,6 @@ public class JProperties implements Map<String, Object> {
             c.add(o);
          } else if (Map.class.isAssignableFrom(o.getClass())) {
             JProperties p=new JProperties((Map)o);
-            
-            // FIXME: need to set a parent here.
             p.setParent(parent);
             c.add(p);
          } else if (List.class.isAssignableFrom(o.getClass())) {
@@ -175,6 +182,10 @@ public class JProperties implements Map<String, Object> {
             if (SubstitutionProcessor.containsTokens(sval)) {
                return SubstitutionProcessor.processSubstitution(sval, this);
             }
+            
+            if (SubstitutionProcessor.containsTokens(sval)) {
+               log.warn("Value for key "+key+" contains unresolvable substitution.");
+            }
             return sval;
          } else if (val instanceof List) {
             List l=(List)val;
@@ -191,6 +202,7 @@ public class JProperties implements Map<String, Object> {
                   // do i do anything here?
                } else if (lo instanceof List) {
                   // FIXME: this is an issue.  Needs to be called recursively
+                  // list of lists not currently supported.
                } else {
                   // what else could there be?
                }
