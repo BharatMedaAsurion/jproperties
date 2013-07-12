@@ -47,12 +47,20 @@ public class Parser {
    public static JProperties parse(File f) throws IOException {
       JProperties p=parse(new FileReader(f));
       p.setUrl(f.toURI().toURL().toString());
+      
+      PostProcessor post=new IncludePostProcessor();
+      post.post(p);
+      
       return p;
    }
    
    public static JProperties parse(URL url) throws IOException {
       JProperties p=parse(new InputStreamReader(url.openStream()));
       p.setUrl(url.toString());
+      
+      PostProcessor post=new IncludePostProcessor();
+      post.post(p);
+      
       return p;
    }
    

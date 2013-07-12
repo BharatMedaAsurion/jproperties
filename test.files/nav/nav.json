@@ -1,0 +1,7 @@
+{
+   "nodes":"$[nodes.json]",
+   "menus":{
+      
+      "cbol2":"$[menu.cbol2.json]"
+   }
+}

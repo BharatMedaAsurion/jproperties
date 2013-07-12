@@ -1,0 +1,15 @@
+/*
+ * Any given menu is a list of nodes.  is itself a node, 
+ * with a List of children.  The root node only has children.
+ */
+{
+	"name":"root",
+	
+	"account":{
+		"children":{
+			"overview":"${nodes->account->overview}",
+			"manage.users":"${nodes->account->manage.users}"
+		}
+	}
+
+}

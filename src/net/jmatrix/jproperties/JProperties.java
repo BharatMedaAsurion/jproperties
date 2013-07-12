@@ -180,7 +180,7 @@ public class JProperties implements Map<String, Object> {
             // check substitutions
             String sval=(String)val;
             if (SubstitutionProcessor.containsTokens(sval)) {
-               return SubstitutionProcessor.processSubstitution(sval, this);
+               return SubstitutionProcessor.processSubstitution(sval, this, Object.class);
             }
             
             if (SubstitutionProcessor.containsTokens(sval)) {
