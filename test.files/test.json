@@ -6,10 +6,13 @@
    "baz":"this should be bar: ${foo}",
    
    "nested":{
-	   "key":"value"
+	   "key":"value",
+	   "replace":"the value of foo is ${foo}"
    },
    
    "list":[{
-      "test":"test"}]
+      "test":"test"}],
+   "mixed.list":[{"object":"value of foo is ${foo}"},
+        "String, value of foo is ${foo}"]
 }
 // goodbye world

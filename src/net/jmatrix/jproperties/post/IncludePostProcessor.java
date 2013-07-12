@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.jmatrix.jproperties.JProperties;
+import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
 import org.apache.commons.logging.Log;
@@ -36,8 +37,6 @@ public class IncludePostProcessor implements PostProcessor {
    
    @Override
    public void post(JProperties p) {
-      
-      
       for (String key:p.keySet()) {
          Object ovalue=p.get(key);
          
@@ -46,10 +45,12 @@ public class IncludePostProcessor implements PostProcessor {
             
             if (Pattern.matches(INCLUDE_REGEX, svalue)) {
                log.debug(key+" include: "+svalue);
-               JProperties included=include(svalue, p);
                
-               if (included != null) {
-                  included.setParent(p);
+               // Can return JProperties or Object.
+               Object included=include(svalue, p);
+               
+               if (included != null && included instanceof JProperties) {
+                  ((JProperties)included).setParent(p);
                }
                // replace, may be replacing with null
                p.put(key, included);
@@ -65,19 +66,27 @@ public class IncludePostProcessor implements PostProcessor {
    ///////////////////////////////////////////////////////////////////////////
    
    /** Top entry into include, delegates to various types of includers */
-   private static final JProperties include(String value, JProperties parent) {
+   private static final Object include(String value, JProperties parent) {
       log.debug("include "+value);
       
       Matcher matcher=INCLUDE_PATTERN.matcher(value);
       matcher.matches();
-      log.debug("Group count: "+matcher.groupCount());
-      
-      for (int i=0; i<=matcher.groupCount(); i++) {
-         log.debug("   "+i+":"+matcher.group(i));
-      }
       
       String include=matcher.group(1);
       log.debug("include: "+include);
+      
+      if (SubstitutionProcessor.containsTokens(include)) {
+         include=SubstitutionProcessor.processSubstitution(include, parent);
+         log.debug("Post Substitution: '"+include+"'");
+      }
+      
+      // if it still contains tokens, that's an error (substitution failed).
+      if (SubstitutionProcessor.containsTokens(include)) {
+         // fail?
+         throw new 
+         RuntimeException("Unresolvable Substitution in Include directive '"+
+               include+"'");
+      }
       
       String split[]=include.split("\\|");
       String url=split[0];
@@ -87,16 +96,12 @@ public class IncludePostProcessor implements PostProcessor {
       
       if (url.startsWith("method://")) {
          return includeMethodUrl(url, options);
-      } else if (url.startsWith("http://") || url.startsWith("https://") ||
-                 url.startsWith("file:/")) {
-         
       } else {
-         // assume it is a relative url - relative to the parent properties.
+         // assume it is a url, or relative file/link
+         URLPropertiesLoader upl=new URLPropertiesLoader();
+         return upl.loadProperties(parent, url, options);
       }
-      
-      return null;
    }
-   
    
    /** */
    private static final JProperties includeMethodUrl(String url, Options options) {
@@ -144,38 +149,5 @@ public class IncludePostProcessor implements PostProcessor {
             log.warn(m);
       }
       return null;
-   }
-   
-   static final String FAILONERROR="failonerror";
-   static final String PARSE="parse";
-   static final String TRUE="true";
-   static final String OPTIONS[]={FAILONERROR,PARSE};
-   
-   /* 
-    * failonerror=[true,false],parse=[true,false]
-    */
-   static class Options {
-      public boolean failonerror=true;
-      public boolean parse=true;
-      public Options(String o) {
-         if (o != null) {
-            String list[]=o.split("\\,");
-            
-            for (String pair:list) {
-               String kv[]=pair.split("\\=");
-               if (kv.length == 2) {
-                  if (kv[0].equalsIgnoreCase(FAILONERROR)) {
-                     failonerror=kv[1].equalsIgnoreCase(TRUE);
-                  } else if (kv[0].equalsIgnoreCase(PARSE)) {
-                     parse=kv[1].equalsIgnoreCase(TRUE);
-                  } else {
-                     log.warn("don't understand option '"+kv[0]+"', valid options are: "+Arrays.asList(OPTIONS));
-                  }
-               } else {
-                  log.warn("don't understand option pair '"+kv+"', syntax is key=value.");
-               }
-            }
-         }
-      }
    }
 }

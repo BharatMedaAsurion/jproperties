@@ -145,7 +145,7 @@
              manifest. -->
         <mkdir dir="build/dep-classes"/>
         <unjar src="jars/commons-logging.jar" dest="build/dep-classes"/>
-        <jar destfile="build/${name}_deps-${version}.jar">
+        <jar destfile="build/${ant.project.name}_deps-${version}.jar">
             <fileset dir="build/dep-classes" includes="**/**" excludes="META-INF/**"/>
             <fileset dir="build/classes" includes="**/**"/>
             <manifest>
@@ -172,8 +172,8 @@
                   <include name="*.jar"/>
                 </fileset>
 
-                <pathelement location="build/${name}-${version}.jar"/>
-                <pathelement location="build/${name}-tests-${version}.jar"/>
+                <pathelement location="build/${ant.project.name}-${version}.jar"/>
+                <pathelement location="build/${ant.project.name}-tests-${version}.jar"/>
             </classpath>
 
             
@@ -191,7 +191,7 @@
     
     <!-- Creates distributable artifacts. -->
     <target name="dist" depends="clean,assemble,test,javadoc">
-        <property name="build-id" value="${name}-${version}"/>
+        <property name="build-id" value="${ant.project.name}-${version}"/>
         <property name="dist-tmp" value="dist-tmp/${build-id}"/>
         <mkdir dir="${dist-tmp}"/>
         

@@ -18,6 +18,10 @@ import org.apache.commons.logging.Log;
  */
 @SuppressWarnings("serial")
 public class JProperties implements Map<String, Object> {
+   public static long DEFAULT_LONG=-1;
+   public static int DEFAULT_INT=-1;
+   public static boolean DEFAULT_BOOLEAN=false;
+   
    public static Log log=ClassLogFactory.getLog();
    
    // The LinkedHashMap preserves key order.
@@ -53,14 +57,14 @@ public class JProperties implements Map<String, Object> {
          } else if (List.class.isAssignableFrom(value.getClass())) {
             List l=(List)value;
             
-            put(key, convertlist(l));
+            put(key, convertlist(l, this));
          } else {
             log.debug("Map Unknown object type: "+value.getClass().getName()+": "+value);
          }
       }
    }
    
-   private static final List convertlist(List l) {
+   private static final List convertlist(List l, JProperties parent) {
       List c=new ArrayList();
       for (Object o:l) {
          if (o == null) {}
@@ -69,9 +73,13 @@ public class JProperties implements Map<String, Object> {
              o instanceof Boolean) {
             c.add(o);
          } else if (Map.class.isAssignableFrom(o.getClass())) {
-            c.add(new JProperties((Map)o));
+            JProperties p=new JProperties((Map)o);
+            
+            // FIXME: need to set a parent here.
+            p.setParent(parent);
+            c.add(p);
          } else if (List.class.isAssignableFrom(o.getClass())) {
-            c.add(convertlist((List)o));
+            c.add(convertlist((List)o, parent));
          } else {
             log.debug("List Unknown object type: "+o.getClass().getName()+": "+o);
          }
@@ -137,8 +145,14 @@ public class JProperties implements Map<String, Object> {
       return null;
    }
    
-   // overiding get to process complex keys and substitution.
+   public List<String> getKeys() {
+      List<String> l=new ArrayList<String>();
+      l.addAll(keySet());
+      return l;
+   }
    
+   ///////////////////////////// Map interface //////////////////////////
+   // overiding get to process complex keys and substitution.
    @Override
    public Object get(Object okey) {
       
@@ -162,6 +176,26 @@ public class JProperties implements Map<String, Object> {
                return SubstitutionProcessor.processSubstitution(sval, this);
             }
             return sval;
+         } else if (val instanceof List) {
+            List l=(List)val;
+            int size=l.size();
+            for (int i=0; i<size; i++) {
+               Object lo=l.get(i);
+               if (lo instanceof String) {
+                  String ls=(String)lo;
+                  if (SubstitutionProcessor.containsTokens(ls)) {
+                     ls=SubstitutionProcessor.processSubstitution(ls, this);
+                     l.set(i, ls); // replace the string.
+                  }
+               } else if (lo instanceof JProperties) {
+                  // do i do anything here?
+               } else if (lo instanceof List) {
+                  // FIXME: this is an issue.  Needs to be called recursively
+               } else {
+                  // what else could there be?
+               }
+            }
+            return l;
          } else {
             return val;
          }
@@ -179,8 +213,11 @@ public class JProperties implements Map<String, Object> {
          }
       }
    }
-   
-   ///////////////////////////// Map interface //////////////////////////
+
+// public Object get(Object key) {
+//    return data.get(key);
+// }
+
    public void clear() {
       data.clear();
    }
@@ -202,10 +239,6 @@ public class JProperties implements Map<String, Object> {
       }
       return nset;
    }
-
-//   public Object get(Object key) {
-//      return data.get(key);
-//   }
 
    public boolean isEmpty() {
       return data.isEmpty();
@@ -257,5 +290,84 @@ public class JProperties implements Map<String, Object> {
       public Object setValue(Object value) {
          return put(key, value);
       }
+   }
+   
+   //////////////////////////  convience methods  //////////////////////////
+   public String getString(String key) {
+      return getString(key, null);
+   }
+   
+   public String getString(String key, String def) {
+      Object o=get(key);
+      if (o == null)
+         return def;
+      return o.toString();
+   }
+   
+   public boolean getBoolean(String key) {
+      return getBoolean(key, DEFAULT_BOOLEAN);
+   }
+   
+   public boolean getBoolean(String key, boolean def) {
+      Object o=get(key);
+      if (o == null)
+         return def;
+      if (o instanceof Boolean) {
+         return ((Boolean)o).booleanValue();
+      }
+      if (o instanceof String) {
+         String s=(String)o;
+         if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("yes") ||
+             s.equalsIgnoreCase("yes")) {
+            return true;
+         }
+         return false;
+      }
+      return false;
+   }
+   
+   public int getInt(String key) {
+      return getInt(key, DEFAULT_INT);
+   }
+   
+   public int getInt(String key, int def) {
+      return (int)getLong(key, def);
+   }
+   
+   public long getLong(String key) {
+      return getLong(key, DEFAULT_LONG);
+   }
+   
+   public long getLong(String key, long def) {
+      Object o=get(key);
+      if (o == null)
+         return def;
+      if (o instanceof Number) {
+         return ((Number)o).longValue();
+      }
+      if (o instanceof String) {
+         try {
+            return Long.parseLong(((String)o).trim());
+         } catch (NumberFormatException ex) {
+            log.debug("Cannot parse number from '"+o+"'");
+         }
+      }
+      return def;
+   }
+   
+   public JProperties getProperties(String key) {
+      Object o=get(key);
+      if (o instanceof JProperties) {
+         return (JProperties)o;
+      }
+      return null;
+   }
+   
+   public List getList(String key) {
+      Object o=get(key);
+      if (o instanceof List) {
+         return (List)o;
+      }
+      return null;
    }
 }
