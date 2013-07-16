@@ -27,19 +27,18 @@ public class Parser {
       
       System.out.println("Parsed tree: "+p);
       
-      System.out.println("PreTree: "+jsonDebug(p));
+      System.out.println("PreTree: "+writeAsJson(p));
       
       for (String key:p.keySet()) {
          System.out.println ("   key: "+key);
       }
-      
       
       PostProcessor post=new IncludePostProcessor();
       post.post(p);
       
       log.debug("Done Postprocessing.");
       
-      System.out.println("PostTree: "+jsonDebug(p));
+      System.out.println("PostTree: "+writeAsJson(p));
       
       //System.out.println ("Home: "+p.get("home"));
    }
@@ -80,12 +79,32 @@ public class Parser {
       return p;
    }
    
-   
-   public static final String jsonDebug(Object o) {
-      return jsonDebug(o, true);
+   /**
+    * @throws IOException  */
+   public static void write(JProperties jp, Writer w) throws IOException {
+      jp.setProcessSubstitutions(false);
+      String s=writeAsJson(jp);
+      System.out.println("Serialized size: "+s.length());
+      
+      w.write(s);
+      w.flush();
+      w.close();
    }
    
-   public static final String jsonDebug(Object o, boolean indent) {
+   /** */
+   public static void write(JProperties jp, File f) throws IOException {
+      write(jp, new FileWriter(f));
+   }
+   
+   public static String toJson(JProperties jp) {
+      return writeAsJson(jp);
+   }
+   
+   public static final String writeAsJson(Object o) {
+      return writeAsJson(o, true);
+   }
+   
+   public static final String writeAsJson(Object o, boolean indent) {
       ObjectMapper om=new ObjectMapper();
       om.configure(SerializationConfig.Feature.INDENT_OUTPUT, indent);
       om.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);

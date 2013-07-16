@@ -42,6 +42,9 @@ public class JProperties implements Map<String, Object> {
    /** Each object should know whence it came. */
    private String url=null;
    
+   private boolean processSubstitutions=true;
+   private boolean processInclusions=true;
+   
    /** */
    public JProperties() { }
    
@@ -128,6 +131,8 @@ public class JProperties implements Map<String, Object> {
    
    public void setParent(JProperties p) {
       parent=p;
+      processInclusions=p.processInclusions;
+      processSubstitutions=p.processSubstitutions;
    }
    
    public void setUrl(String s) {
@@ -158,7 +163,25 @@ public class JProperties implements Map<String, Object> {
       return l;
    }
    
-   ///////////////////////////// Map interface //////////////////////////
+
+   public boolean isProcessSubstitutions() {
+      return processSubstitutions;
+   }
+
+   public void setProcessSubstitutions(boolean processSubstitutions) {
+      this.processSubstitutions = processSubstitutions;
+   }
+
+   public boolean isProcessInclusions() {
+      return processInclusions;
+   }
+
+   public void setProcessInclusions(boolean processInclusions) {
+      this.processInclusions = processInclusions;
+   }
+   
+   ///////////////////////////////////////////////////////////////////////////
+   ///////////////////////////// Map interface ///////////////////////////////
    // overiding get to process complex keys and substitution.
    @Override
    public Object get(Object okey) {
@@ -175,6 +198,9 @@ public class JProperties implements Map<String, Object> {
       if (splitKey.length == 1) {
          // simple key
          Object val=data.get(key);
+         
+         if (!processSubstitutions) 
+            return val;
          
          if (val instanceof String) {
             // check substitutions
@@ -195,8 +221,8 @@ public class JProperties implements Map<String, Object> {
                if (lo instanceof String) {
                   String ls=(String)lo;
                   if (SubstitutionProcessor.containsTokens(ls)) {
-                     ls=SubstitutionProcessor.processSubstitution(ls, this);
-                     l.set(i, ls); // replace the string.
+                     Object newobj=SubstitutionProcessor.processSubstitution(ls, this, Object.class);
+                     l.set(i, newobj); // replace the string.
                   }
                } else if (lo instanceof JProperties) {
                   // do i do anything here?
@@ -382,4 +408,5 @@ public class JProperties implements Map<String, Object> {
       }
       return null;
    }
+
 }
