@@ -158,6 +158,18 @@
             </manifest>
         </jar>
     </target>
+    
+    <target name="assemble.ivy" depends="assemble">
+        <mkdir dir="build/ivy/${version}"/>
+        
+        <copy todir="build/ivy/${version}">
+           <fileset dir="resources/ivy.template" includes="**"/>
+        </copy>
+        
+        <replace file="build/ivy/${version}/ivy-version.xml" token="$${version}" value="${version}"/>
+        <move file="build/ivy/${version}/ivy-version.xml" tofile="build/ivy/${version}/ivy-${version}.xml"/>
+        <copy file="build/jproperties-${version}.jar" todir="build/ivy/${version}/jars"/>
+    </target>
 
     <target name="test" depends="compile-tests">
         <mkdir dir="build/junit.report"/>

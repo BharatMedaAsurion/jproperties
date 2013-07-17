@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="1.0">
+	<info organisation="google"
+		module="jproperties"
+		revision="${version}"
+		status="release"
+	/>
+	<configurations>
+	        <conf name="build" visibility="public" description=""/>
+		<conf name="runtime" visibility="public" description=""/>
+	</configurations>
+	<publications>
+		<artifact name="jproperties" type="jar" ext="jar" conf="runtime"/>
+	</publications>
+        <dependencies>
+	  <dependency org="apache" name="commons-logging" rev="1.1.1" conf="runtime->runtime;build->runtime"/>
+	  <dependency org="codehaus" name="jackson" rev="latest.revision" conf="runtime->runtime;build->runtime"/>
+        </dependencies>
+</ivy-module>
