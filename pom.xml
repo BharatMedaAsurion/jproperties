@@ -7,7 +7,16 @@
   <version>0.9.0</version>
   <packaging>jar</packaging>
 
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <name>JProperties</name>
+  <description>JSON based properties with substitution and inclusion.</description>
   <url>https://github.com/bemowski/jproperties</url>
 
   <dependencies>
@@ -44,6 +53,8 @@
   </scm>
      
   <build>
+   <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
+  
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -58,8 +69,13 @@
           </execution>
         </executions>
         <configuration>
-          <doCheck>true</doCheck>
-          <doUpdate>true</doUpdate>
+          <doCheck>false</doCheck> <!-- check w/ scm if there are local mods -->
+          <doUpdate>false</doUpdate> <!--  pull from scm -->
+
+          <format>{0,number}-</format>
+          <items>
+            <item>buildNumber0</item>
+          </items>
         </configuration>
       </plugin>
     </plugins>
