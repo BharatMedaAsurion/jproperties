@@ -44,18 +44,19 @@
         <mkdir dir="build/classes" />
 
         <javac destdir="build/classes" 
-            excludes="**/*.old" debug="true" target="1.5"> 
+            excludes="**/*.old" debug="true"> 
            <classpath refid="project.class.path"/>
            <src>
-               <pathelement location="src" />
-               <pathelement location="build/gen" />
+               <pathelement location="src/main/java" />
            </src>
         </javac>
 
+        <!--
         <copy todir="build/classes">
            <fileset dir="src" includes="**/*.properties" />
         </copy>
-            
+        -->
+        
         <copy todir="build/classes/net/jmatrix/jproperties">
            <fileset dir="${basedir}" includes="version.properties" />
         </copy>

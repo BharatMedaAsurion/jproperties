@@ -1,10 +1,10 @@
 {
    "overview":{
-      "url":"/cbo/account/overview",
+      "url":"/account/overview",
       "imageUrl":"/images/account.jpg"
    },
    "manage.users":{
-      "url":"/cbo/account/manage.users",
+      "url":"/account/manage.users",
       "imageUrl":"/images/manage.jpg"
    }
 }
