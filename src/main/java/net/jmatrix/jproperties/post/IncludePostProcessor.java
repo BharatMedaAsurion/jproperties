@@ -1,8 +1,9 @@
 package net.jmatrix.jproperties.post;
 
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.regex.*;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
@@ -11,7 +12,8 @@ import net.jmatrix.jproperties.util.ClassLogFactory;
 import org.apache.commons.logging.Log;
 
 /**
- * Processes any includes.  
+ * Processes any includes.  Includes must be VALUES in valid 
+ * json "KEY":"VALUE" constructs.
  * 
  * Include syntax is: 
  * 

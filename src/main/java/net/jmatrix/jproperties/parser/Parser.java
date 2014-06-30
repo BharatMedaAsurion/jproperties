@@ -1,16 +1,29 @@
 package net.jmatrix.jproperties.parser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URL;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import net.jmatrix.jproperties.JProperties;
-import net.jmatrix.jproperties.post.*;
-import net.jmatrix.jproperties.util.*;
+import net.jmatrix.jproperties.post.IncludePostProcessor;
+import net.jmatrix.jproperties.post.PostProcessor;
+import net.jmatrix.jproperties.util.ClassLogFactory;
+import net.jmatrix.jproperties.util.JDK14LogConfig;
 
 import org.apache.commons.logging.Log;
-import org.codehaus.jackson.*;
-import org.codehaus.jackson.map.*;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.type.TypeReference;
 
 public class Parser {

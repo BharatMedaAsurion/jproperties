@@ -1,13 +1,17 @@
 package net.jmatrix.jproperties.post;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.parser.Parser;
-import net.jmatrix.jproperties.util.*;
+import net.jmatrix.jproperties.util.StreamUtil;
+import net.jmatrix.jproperties.util.URLUtil;
 
-import org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Loads properties from file, http(s), or classpath locations. 
