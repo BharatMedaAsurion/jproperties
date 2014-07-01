@@ -2,26 +2,44 @@ package net.jmatrix.jproperties.cli;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 
 import net.jmatrix.jproperties.JProperties;
+import net.jmatrix.jproperties.WrappedProperties;
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.util.ArgParser;
+import net.jmatrix.jproperties.util.URLUtil;
 
 
 /** 
+ * A command line tool for migrating between java.util.Properties and
+ * json properties, and back again.
  * 
+ * This is the default main.class when using jproperties with dependencies
+ * jar file.  So this class can be executed as: 
+ *   java -jar jproperties-[version]-with-deps.jar [options] properties.f
+ * 
+ * See usage for further detail.
  */
 public class JsonPropertiesCLI {
    static boolean debug=false;
    
    
+   
+   // 
    // -s <properties>
-   //   Split a properties file based on delimeter
+   //   Split.  Splits a (java.util.)Properties file into a json tree structure
+   //   based on a delimeter
+   //
+   // -f <jproperties>
+   //   Flatten.  Takes a jproperties file and flattens it to a 
+   //   java.util.Properties format
+   //   using the specified delimeter, or "." if none specified.
    //
    // -d <delimeters>
    //   Defaults to "." - can substitute any other characters
@@ -40,20 +58,51 @@ public class JsonPropertiesCLI {
       String outfilename=ap.getStringArg("-o");
       debug=ap.getBooleanArg("-v");
       
-      if (ap.getBooleanArg("-s")) {
+      String inputurlstring=ap.getLastArg();
+      
+      URL inputUrl=null;
+      if (inputurlstring.startsWith("classpath:") || inputurlstring.startsWith("http:") ||
+          inputurlstring.startsWith("jar:")) {
+         inputUrl=new URL(URLUtil.convertClasspathURL(inputurlstring));
+      } else {
+         // assume is is a file
+         File infile=new File(inputurlstring);
+         inputUrl=infile.toURL();
+      }
+      
+      if (debug) 
+         System.err.println("URL:  "+inputUrl);
+      
+      
+//      if (!infile.exists() || !infile.canRead()) {
+//         throw new IOException ("Cannot read input file at "+infile.getAbsolutePath());
+//      }
+      
+      if (ap.getBooleanArg("-f")) {
+         JProperties jp=Parser.parse(inputUrl);
          
-         String infilename=ap.getLastArg();
-         File infile=new File(infilename);
+         // now flatten.
+         Character d=null;
+         if (delim != null) 
+            d=delim.toCharArray()[0];
          
-         if (!infile.exists() || !infile.canRead()) {
-            throw new IOException ("Cannot read input file at "+infile.getAbsolutePath());
+         WrappedProperties wp=new WrappedProperties(jp, d);
+         
+         Enumeration keys=wp.keys();
+         
+         while (keys.hasMoreElements()) {
+            String key=keys.nextElement().toString();
+            String value=wp.getProperty(key);
+            
+            System.err.println(key+"="+value);
          }
          
+      } else if (ap.getBooleanArg("-s")) {
          Properties jup=new Properties();
          
          JProperties jp=new JProperties();
          
-         jup.load(new FileReader(infile));
+         jup.load(new InputStreamReader(inputUrl.openStream()));
          
          Enumeration keyset=jup.keys();
          while (keyset.hasMoreElements()) {
@@ -66,7 +115,7 @@ public class JsonPropertiesCLI {
                String components[]=key.split("\\"+delim);
                
                if (debug) {
-                  System.out.print("Key '"+key+"'  -->  "+Arrays.asList(components));
+                  System.out.println("Key '"+key+"'  -->  "+Arrays.asList(components));
                }
                
                StringBuilder path=new StringBuilder();
@@ -102,11 +151,18 @@ public class JsonPropertiesCLI {
             Parser.write(jp, new OutputStreamWriter(System.out));
          }
       } else {
-         // just parse ??
-         System.out.println ("not -s, now what?");
+         // just parse and an output, with inclusions and substitutions
+         JProperties jp=Parser.parse(inputUrl);
+         
+         if (outfilename != null) {
+            File outfile=new File(outfilename);
+            System.out.println ("Writing to: "+outfile.getAbsolutePath());
+            Parser.write(jp, new File(outfilename));
+         } else {
+            Parser.write(jp, new OutputStreamWriter(System.out));
+            System.out.println();
+         }
       }
-      
-      
    }
    
    

@@ -1,0 +1,12 @@
+
+
+How to use JProperties in Spring.
+
+
+
+
+
+
+http://forum.spring.io/forum/spring-projects/container/32444-propertyplaceholderconfigurer-wrapping-my-own-custom-properties-like-object
+
+

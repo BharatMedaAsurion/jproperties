@@ -256,18 +256,22 @@ public class JProperties implements Map<String, Object> {
 //    return data.get(key);
 // }
 
+   @Override
    public void clear() {
       data.clear();
    }
 
+   @Override
    public boolean containsKey(Object key) {
       return data.containsKey(key);
    }
 
+   @Override
    public boolean containsValue(Object value) {
       return data.containsValue(value);
    }
 
+   @Override
    public Set<java.util.Map.Entry<String, Object>> entrySet() {
       Set<Map.Entry<String, Object>> oset=data.entrySet();
       
@@ -277,31 +281,38 @@ public class JProperties implements Map<String, Object> {
       }
       return nset;
    }
-
+   
+   @Override
    public boolean isEmpty() {
       return data.isEmpty();
    }
-
+   
+   @Override
    public Set<String> keySet() {
       return data.keySet();
    }
-
+   
+   @Override
    public Object put(String key, Object value) {
       return data.put(key, value);
    }
-
+   
+   @Override
    public void putAll(Map<? extends String, ? extends Object> m) {
       data.putAll(m);
    }
-
+   
+   @Override
    public Object remove(Object key) {
       return data.remove(key);
    }
 
+   @Override
    public int size() {
       return data.size();
    }
 
+   @Override
    public Collection<Object> values() {
       throw new RuntimeException("values not supported.");
       //return data.values();

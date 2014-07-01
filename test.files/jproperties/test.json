@@ -1,4 +1,3 @@
-
 /* hello world. */
 {
    "foo":"bar",
@@ -9,7 +8,8 @@
 	   "key":"value",
 	   "replace":"the value of foo is ${foo}"
    },
-   
+   "simple.list":["one", "two", "three", "four", "get your bootie on the floor."],
+
    "list":[{
       "test":"test"}],
    "mixed.list":[{"object":"value of foo is ${foo}"},
