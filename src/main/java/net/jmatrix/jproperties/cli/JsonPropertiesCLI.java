@@ -142,15 +142,16 @@ public class JsonPropertiesCLI {
             }
          }
          
-         
          if (outfilename != null) {
             File outfile=new File(outfilename);
             System.out.println ("Writing to: "+outfile.getAbsolutePath());
             Parser.write(jp, new File(outfilename));
          } else {
             Parser.write(jp, new OutputStreamWriter(System.out));
+            System.out.println("\n");
          }
       } else {
+         
          // just parse and an output, with inclusions and substitutions
          JProperties jp=Parser.parse(inputUrl);
          
@@ -164,6 +165,4 @@ public class JsonPropertiesCLI {
          }
       }
    }
-   
-   
 }

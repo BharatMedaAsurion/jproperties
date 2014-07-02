@@ -19,10 +19,16 @@ public class WrappedProperties extends Properties {
    JProperties jproperties;
    Character delimiter=null;
    
-   public boolean debug=true;
+   public boolean debug=false;
    
-   public WrappedProperties(JProperties j, Character del) {
-      jproperties=j;
+   /** */
+   public WrappedProperties(JProperties jp) {
+      this(jp, '.');
+   }
+   
+   /** */
+   public WrappedProperties(JProperties jp, Character del) {
+      jproperties=jp;
       delimiter=del;
    }
    
@@ -30,6 +36,9 @@ public class WrappedProperties extends Properties {
    
    @Override
    public String getProperty(String key, String def) {
+      if (key == null)
+         throw new NullPointerException("Key cannot be null.");
+      
       String ikey=null;
       if (delimiter != null) {
          String components[]=key.split("\\"+delimiter);
@@ -61,7 +70,7 @@ public class WrappedProperties extends Properties {
    public Object get(Object key) {
       if (key == null)
          throw new NullPointerException("Key cannot be null.");
-      return jproperties.get(key.toString());
+      return getProperty(key.toString());
    }
    
    @Override
@@ -148,6 +157,10 @@ public class WrappedProperties extends Properties {
                   keys.add(flatkey);
                }
             }
+         }
+         
+         if (debug) {
+            System.err.println("Keys: "+keys);
          }
          iterator=keys.iterator();
       }

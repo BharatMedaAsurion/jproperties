@@ -97,11 +97,11 @@ public class Parser {
    public static void write(JProperties jp, Writer w) throws IOException {
       jp.setProcessSubstitutions(false);
       String s=writeAsJson(jp);
-      System.out.println("Serialized size: "+s.length());
+      System.err.println("Serialized size: "+s.length());
       
       w.write(s);
       w.flush();
-      w.close();
+      //w.close();
    }
    
    /** */

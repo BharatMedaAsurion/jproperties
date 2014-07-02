@@ -1,6 +1,7 @@
 package net.jmatrix.jproperties.post;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,35 +107,71 @@ public class IncludePostProcessor implements PostProcessor {
    }
    
    /** */
-   private static final JProperties includeMethodUrl(String url, Options options) {
+   private static final Object includeMethodUrl(String url, Options options) {
       url=url.substring("method://".length());
       
       // java.lang.System.getenv()
+      // java.land.System.getenv("foo")
+      // java.lang.System.getProperties()
+      // java.lang.System.getProperty("foo");
       
       // parse the classs name and method name.
+      String sargs=url.substring(url.indexOf("(")+1, url.indexOf(")"));
+      url=url.substring(0,url.length()-(sargs.length()+2));
+      
       String className=url.substring(0, url.lastIndexOf("."));
       String methodName=url.substring(url.lastIndexOf(".")+1);
       
-      if (methodName.endsWith("()"))
-         methodName=methodName.substring(0, methodName.length()-2);
+      Object methodArgs[]=null;
+      
+      
+      if (sargs.length() > 0) {
+         String aargs[]=sargs.split("\\,");
+         
+         for (int i=0; i<aargs.length; i++) {
+            aargs[i]=aargs[i].trim();
+            if (aargs[i].startsWith("\"") && aargs[i].endsWith("\"")) {
+               aargs[i]=aargs[i].substring(1, aargs[i].length()-1);
+            }
+         }
+         methodArgs=aargs;
+      }
+      
+      log.info("Method name '"+methodName+"'");
+      log.info("sargs: "+sargs);
+      log.info(""+(methodArgs == null?"":Arrays.asList(methodArgs).toString()));
       
       try {
          Class clazz=Class.forName(className);
          
-         Method method=clazz.getMethod(methodName);
-         
-         Object obj=method.invoke(null);
-         
-         if (obj == null) {
-            log.error("Method include of "+className+"."+methodName+" returned null.");
+         Class parms[]=null;
+         if (methodArgs != null) {
+            parms=new Class[methodArgs.length];
+            for (int i=0; i<methodArgs.length; i++) {
+               parms[i]=methodArgs[i].getClass();
+            }
          }
          
-         if (obj instanceof Map) {
+         Method method=clazz.getMethod(methodName, parms);
+         
+         Object obj=null;
+         
+         if (methodArgs == null) {
+            obj=method.invoke(null);
+         } else {
+            obj=method.invoke(null, methodArgs);
+         }
+         
+         if (obj == null) {
+            log.error("Method include of "+className+"."+methodName+"("+sargs+") returned null.");
+         } else if (obj instanceof Map) {
             JProperties p=new JProperties((Map)obj);
             
             log.debug("Loaded "+p.size()+" properties with MethodLoader.");
             
             return p;
+         } else if (obj instanceof String) {
+            return obj;
          } else {
             String m="Error including "+url+
                   ", don't know how to process result type "+obj.getClass().getName();

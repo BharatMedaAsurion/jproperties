@@ -2,6 +2,7 @@ package net.jmatrix.jproperties;
 
 import java.util.*;
 
+import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
@@ -76,6 +77,12 @@ public class JProperties implements Map<String, Object> {
       }
    }
    
+   public String toString() {
+      return Parser.writeAsJson(this);
+   }
+   
+   
+   /** Used when creating a JProperties tree from a generic String/Object Map. */
    private static final List convertlist(List l, JProperties parent) {
       List c=new ArrayList();
       for (Object o:l) {
@@ -241,20 +248,66 @@ public class JProperties implements Map<String, Object> {
          String remainingKey=key.substring(splitKey[0].length()+2);
          
          Object val=get(splitKey[0]);
-         if (val != null && val instanceof JProperties) {
+         if (val == null) {
+            return null;
+         } else if (val instanceof JProperties) {
             return ((JProperties)val).get(remainingKey);
          } else {
-            log.warn("Unresolvable key '"+okey+"', "+splitKey[0]+
-                  " does not return nested properties.");
+            log.warn("Unresolvable key '"+okey+"', at component '"+splitKey[0]+
+                  "' does not return nested properties, rather "+
+                  (val == null?"null":val.getClass().getName()));
             // syntax error - should be properties object.
             return null;
          }
       }
    }
-
-// public Object get(Object key) {
-//    return data.get(key);
-// }
+   
+   /**
+    * Puts value into properties.
+    * 
+    * Keys: 
+    *   Keys should be strings
+    *   A complex key will contain the '-&gt;' syntax, putting the object deeper 
+    *   into the tree.
+    *   
+    * Values:
+    *    A value can be one of: 
+    *      1) A primitive - String or Number
+    *      2) A list - which can contain primitives or JProperties maps
+    *      3) A nested JProperties object.
+    */
+   @Override
+   public Object put(String key, Object value) {
+      String splitKey[]=key.split("\\-\\>");
+      
+      if (splitKey.length == 1) {
+         return data.put(key, value);
+      } else {
+         // trim key, and recursively put.
+         
+         String remainingKey=key.substring(splitKey[0].length()+2);
+         
+         JProperties next=null;
+         
+         Object val=get(splitKey[0]);
+         if (val == null) {
+            next=new JProperties();
+            next.setParent(this);
+            put(splitKey[0], next);
+         } else if (val instanceof JProperties) {
+            // ok, do nothing
+            next=(JProperties)val;
+         } else {
+            // syntax error - should be properties object.
+            throw new RuntimeException ("Unresolvable put key '"+key+
+                  "', at component '"+splitKey[0]+
+                  "' does not return nested properties, rather "+
+                  val.getClass().getName());
+         }
+         return next.put(remainingKey, value);
+      }
+   }
+   
 
    @Override
    public void clear() {
@@ -290,11 +343,6 @@ public class JProperties implements Map<String, Object> {
    @Override
    public Set<String> keySet() {
       return data.keySet();
-   }
-   
-   @Override
-   public Object put(String key, Object value) {
-      return data.put(key, value);
    }
    
    @Override
