@@ -110,7 +110,7 @@ public class JProperties implements Map<String, Object> {
     * a match.  It will return the first match.
     * 
     * @param key
-    * @return
+    * @return The value found by walking up the tree.
     */
    public Object findValue(String key) {
       Object val=get(key);
@@ -308,7 +308,6 @@ public class JProperties implements Map<String, Object> {
       }
    }
    
-
    @Override
    public void clear() {
       data.clear();

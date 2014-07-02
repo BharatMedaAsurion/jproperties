@@ -1,0 +1,12 @@
+
+JProperties Release
+
+0.9.0 - 25June2014
+  - First push to maven central via Sonatype
+  
+0.9.1 - 
+  - Command line tool for splitting and converting to java.util.Properties
+  - WrappedProperties - provides java.util.Properties view of a JProperties tree
+  - A unit test or two.
+  
+  

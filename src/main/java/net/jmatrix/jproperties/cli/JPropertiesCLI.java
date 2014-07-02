@@ -1,7 +1,7 @@
 package net.jmatrix.jproperties.cli;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
@@ -26,32 +26,76 @@ import net.jmatrix.jproperties.util.URLUtil;
  * 
  * See usage for further detail.
  */
-public class JsonPropertiesCLI {
+public class JPropertiesCLI {
    static boolean debug=false;
    
+   static final String usage=
+"JPropertiesCLI [options] properties.file\n" + 
+" \n" + 
+"  With no options, just a properties file, the CLI will parse the properties \n"+
+"  file as json properties, including processing incldues, and print the \n"+
+"  result to System.out with all substitutions.\n"+
+"\n"+
+"Options: \n" + 
+" \n" + 
+"   -s <properties>\n" + 
+"      Split.  Splits a (java.util.)Properties file into a json tree structure\n" + 
+"      based on a delimeter.  \n" + 
+"\n" + 
+"   -f <jproperties>\n" + 
+"      Flatten.  Takes a jproperties file and flattens it to a \n" + 
+"      java.util.Properties format\n" + 
+"      using the specified delimeter, or \".\" if none specified.\n" + 
+"\n" + 
+"      Note - flattening delimiter cannot be a component of any key \n" + 
+"      within the JProperties tree.\n" + 
+"      for instance, if you have a key foo.bar in JProperties, you \n" + 
+"      cannot use '.' as the delimeter for flattening (or wrapping\n" + 
+"      see WrappedProperties.java)\n" + 
+"\n" + 
+"   -d <delimeters>\n" + 
+"      Defaults to \".\" - can substitute any other characters\n" + 
+" \n" + 
+"   -o <file>\n" + 
+"      output file, if not, system.out";
+
+
    
-   
+   // JsonPropertiesCLI [options] properties.file
    // 
-   // -s <properties>
-   //   Split.  Splits a (java.util.)Properties file into a json tree structure
-   //   based on a delimeter
-   //
-   // -f <jproperties>
-   //   Flatten.  Takes a jproperties file and flattens it to a 
-   //   java.util.Properties format
-   //   using the specified delimeter, or "." if none specified.
-   //
-   // -d <delimeters>
-   //   Defaults to "." - can substitute any other characters
+   // Options: 
    // 
-   // -o <file>
-   //   output file, if not, system.out
+   //   -s <properties>
+   //      Split.  Splits a (java.util.)Properties file into a json tree structure
+   //      based on a delimeter.  
    //
-   //  JsonPropertiesCLI [options] properties.file
+   //   -f <jproperties>
+   //      Flatten.  Takes a jproperties file and flattens it to a 
+   //      java.util.Properties format
+   //      using the specified delimeter, or "." if none specified.
+   //
+   //      Note - flattening delimiter cannot be a component of any key 
+   //      within the JProperties tree.
+   //      for instance, if you have a key foo.bar in JProperties, you 
+   //      cannot use '.' as the delimeter for flattening (or wrapping
+   //      see WrappedProperties.java)
+   //
+   //   -d <delimeters>
+   //      Defaults to "." - can substitute any other characters
+   // 
+   //   -o <file>
+   //      output file, if not, system.out
+   //
    //
    
    
    public static void main(String args[]) throws Exception {
+      if (args.length == 0) {
+         System.out.println (usage);
+         System.exit(1);
+      }
+      
+      
       ArgParser ap=new ArgParser(args);
       
       String delim=ap.getStringArg("-d");
@@ -73,6 +117,19 @@ public class JsonPropertiesCLI {
       if (debug) 
          System.err.println("URL:  "+inputUrl);
       
+      InputStream is=null;
+      try {
+         is=inputUrl.openStream();
+         if (is == null) {
+            System.err.println ("Cannot read from input URL: "+inputUrl);
+            System.exit(2);
+         }
+      } catch (Exception ex) {
+         ex.printStackTrace();
+         
+         System.err.println ("Cannot read from input URL: "+inputUrl);
+         System.exit(3);
+      }
       
 //      if (!infile.exists() || !infile.canRead()) {
 //         throw new IOException ("Cannot read input file at "+infile.getAbsolutePath());
