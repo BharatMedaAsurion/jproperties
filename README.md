@@ -23,16 +23,18 @@ Substitution
 
 JProperties supports variable substitution using familiar syntax: 
 
-	{ "name":"Paul Bemowski",
-	"email":"bemowski@yahoo.com",
+	{ "name":"Elmer Fudd",
+	"email":"efud@disney.com",
 	"email.address":"${name} <${email}>" }
 
 Results in: 
+
 	{
-	  "name" : "Paul Bemowski",
-	  "email" : "bemowski@yahoo.com",
-	  "email.address" : "Paul Bemowski <bemowski@yahoo.com>"
+	  "name" : "Elmer Fudd",
+	  "email" : "efud@disney.com",
+	  "email.address" : "Elmer Fudd <efud@disney.com>"
 	}
+
 
 
 Inclusion
@@ -67,10 +69,38 @@ classpath:/resources/parent.jproperties
 Then the child will be loaded from:
 classpath:/resources/child.jproperties
 
-* * *
-Substitutions are respected within the include syntax.  So we may have 
-multiple 
+### Supported Include URL formats: 
 
+File: 
+   $[/absolute/file/path/foo.properties]
+   $[relative/path/foo.properties]
+
+Http/https:
+   $[http://example.com/path/foo.properties]
+
+Classpath: 
+   $[classpath:/resources/foo.properties]
+
+Method, single property: 
+   "user.home":"$[method://java.lang.System.getProperty(\"user.home\")]"
+
+Method, map of all properties: 
+   "system":"$[method://java.lang.System.getProperties()]",
+   "env":"$[method://java.lang.System.getenv()]"
+
+
+* * *
+Substitutions are respected within the include syntax.  For instance, we can set an 
+environment variable via "-Denv=qa" at runtime, and then use that to include the 
+QA environment prooperties.  For instance: 
+
+	java .... -Dsystem.env=qa ... 
+
+	{
+	  "system.env" : "$[method://java.lang.System.getProperty(\"system.env\")]",
+	  "env":"$[${system.env}.properties]",    // Includes the file "qa.properties" in our example
+	  "database.host":"${env->database.host}"
+	}
 
 
 JProperiesCLI
@@ -118,6 +148,20 @@ Usage
 Spring Integration
 ==================
 
-work in progress
+We can integrate with Spring and get the benefit of both structured properties when we want them - but also 
+a "flattened" view of the properties available for substitution in applicationContext.xml.
 
+To load JProperties 
 
+<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+   <property name="ignoreUnresolvablePlaceholders" value="true"/>
+   <property name="propertiesArray">
+     <list>
+       <bean factory-bean="propertiesHolder" factory-method="asProperties" />
+     </list>
+   </property>
+</bean>
+	
+<bean id="propertiesHolder" class="net.jmatrix.jproperties.spring.JPropertiesSpringHolder">
+  <property name="url">classpath:/resources/</property>
+</bean>
