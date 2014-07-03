@@ -153,15 +153,15 @@ a "flattened" view of the properties available for substitution in applicationCo
 
 To load JProperties 
 
-'''<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-   <property name="ignoreUnresolvablePlaceholders" value="true"/>
-   <property name="propertiesArray">
-     <list>
-       <bean factory-bean="propertiesHolder" factory-method="asProperties" />
-     </list>
-   </property>
-</bean>
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	   <property name="ignoreUnresolvablePlaceholders" value="true"/>
+	   <property name="propertiesArray">
+	     <list>
+	       <bean factory-bean="propertiesHolder" factory-method="asProperties" />
+	     </list>
+	   </property>
+	</bean>
 	
-<bean id="propertiesHolder" class="net.jmatrix.jproperties.spring.JPropertiesSpringHolder">
-  <property name="url">classpath:/resources/</property>
-</bean>'''
+	<bean id="propertiesHolder" class="net.jmatrix.jproperties.spring.JPropertiesSpringHolder">
+	  <property name="url">classpath:/resources/</property>
+	</bean>
