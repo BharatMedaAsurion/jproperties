@@ -1,7 +1,9 @@
 jproperties
 ===========
 
-JSON, tree based Properties for java
+JSON, tree based Properties for java.  Supports variable substitution and 
+inclusion of other files.
+
 
 
 Syntax
@@ -12,16 +14,62 @@ Jackson json parser.
 
 The parser does allow comments per the following:
 
-/* this is a comment */
-// this is also a comment
+	/* this is a comment */
+	// this is also a comment
 
 
 Substitution
 ------------
 
+JProperties supports variable substitution using familiar syntax: 
+
+	{ "name":"Paul Bemowski",
+	"email":"bemowski@yahoo.com",
+	"email.address":"${name} <${email}>" }
+
+Results in: 
+	{
+	  "name" : "Paul Bemowski",
+	  "email" : "bemowski@yahoo.com",
+	  "email.address" : "Paul Bemowski <bemowski@yahoo.com>"
+	}
+
 
 Inclusion
 ---------
+
+Inclusion allows you to include one properties file in another using either
+relateive or absolute URLs - supporting file, http, and classpath based urls.
+
+The syntax for includsion is: 
+	$[<include resource>]
+
+If the included resource does not specify a protocol, it is assumed to be
+relative to its parent's location.  For instance if we have 2 properties files
+parent.jproperties, child.jproperties - with this relationship:
+
+parent.jproperties:
+	{"child":"$[child.properties"}
+
+
+child.jproperties: 
+	{"foo":"bar"}
+
+Then - if we load the parent properties file from:
+file:///tmp/jparent.properties 
+
+Then the child will be loaded from:
+file:///tmp/jchild.properties
+
+But if we load Parent from: 
+classpath:/resources/parent.jproperties
+
+Then the child will be loaded from:
+classpath:/resources/child.jproperties
+
+* * *
+Substitutions are respected within the include syntax.  So we may have 
+multiple 
 
 
 

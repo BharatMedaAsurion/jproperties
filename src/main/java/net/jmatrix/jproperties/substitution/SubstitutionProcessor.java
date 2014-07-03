@@ -213,10 +213,12 @@ public final class SubstitutionProcessor {
          }
       }
 
-      if (newVal.equals(s))
+      if (newVal.equals(s)) {
+         log.debug("returning '"+newVal+"' at iter "+iter);
          return newVal; // no change
-      else
+      } else {
          return processSubstitution(newVal, p, null, iter+1);
+      }
    }
    
    /** */

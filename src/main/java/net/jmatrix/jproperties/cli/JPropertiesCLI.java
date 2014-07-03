@@ -13,6 +13,7 @@ import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.WrappedProperties;
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.util.ArgParser;
+import net.jmatrix.jproperties.util.JDK14LogConfig;
 import net.jmatrix.jproperties.util.URLUtil;
 
 
@@ -101,6 +102,10 @@ public class JPropertiesCLI {
       String delim=ap.getStringArg("-d");
       String outfilename=ap.getStringArg("-o");
       debug=ap.getBooleanArg("-v");
+      
+      if (debug) {
+         JDK14LogConfig.startup();
+      }
       
       String inputurlstring=ap.getLastArg();
       
@@ -217,7 +222,8 @@ public class JPropertiesCLI {
             System.out.println ("Writing to: "+outfile.getAbsolutePath());
             Parser.write(jp, new File(outfilename));
          } else {
-            Parser.write(jp, new OutputStreamWriter(System.out));
+            //Parser.write(jp, new OutputStreamWriter(System.out));
+            System.out.println(Parser.toJson(jp));
             System.out.println();
          }
       }
