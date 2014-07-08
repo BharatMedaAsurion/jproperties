@@ -8,5 +8,6 @@ JProperties Release
   - Command line tool for splitting and converting to java.util.Properties
   - WrappedProperties - provides java.util.Properties view of a JProperties tree
   - A unit test or two.
-  
+  - new JPRuntimeException
+  - Spring integration with JPropertiesSpringHolder
   
