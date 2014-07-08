@@ -1,7 +1,9 @@
 package net.jmatrix.jproperties.substitution;
 
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
@@ -177,7 +179,7 @@ public final class SubstitutionProcessor {
       // stack overflow.
       
       if (iter > MAX_RECURSIVE_SUBSTITUTIONS)
-         throw new RuntimeException("Error: recursive replacement limit on '"+
+         throw new JPRuntimeException("Error: recursive replacement limit on '"+
                s+"' "+iter+" exceeds max "+MAX_RECURSIVE_SUBSTITUTIONS);
       
       // Note: Pattern instance is immutable and thread safe.
@@ -215,6 +217,11 @@ public final class SubstitutionProcessor {
 
       if (newVal.equals(s)) {
          log.debug("returning '"+newVal+"' at iter "+iter);
+         
+         if (containsTokens(newVal)) {
+            log.info("Unresolvable Substitution in token "+newVal);
+         }
+         
          return newVal; // no change
       } else {
          return processSubstitution(newVal, p, null, iter+1);

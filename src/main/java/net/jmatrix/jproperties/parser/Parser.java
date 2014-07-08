@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
@@ -11,6 +12,7 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.post.IncludePostProcessor;
 import net.jmatrix.jproperties.post.PostProcessor;
@@ -67,7 +69,10 @@ public class Parser {
    }
    
    public static JProperties parse(URL url) throws IOException {
-      JProperties p=parse(new InputStreamReader(url.openStream()));
+      InputStream is=url.openStream();
+      log.debug("Stream opend for "+url+": "+is);
+      
+      JProperties p=parse(new InputStreamReader(is));
       p.setUrl(url.toString());
       
       PostProcessor post=new IncludePostProcessor();
@@ -126,7 +131,7 @@ public class Parser {
             return "null";
          return om.writeValueAsString(o);
       } catch (Exception ex) {
-         throw new RuntimeException("Error in debug serialization.", ex);
+         throw new JPRuntimeException("Error in debug serialization.", ex);
       }
    }
 }

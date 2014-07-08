@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /** 
  * WrappedProperties wraps a JProperties instance, and presents a
  * flattened view of the data as a java.util.Properties object.
@@ -16,10 +19,15 @@ import java.util.Set;
  * java.util.Properties.
  */
 public class WrappedProperties extends Properties {
+   static final Log log=LogFactory.getLog(WrappedProperties.class);
+
+   
    JProperties jproperties;
    Character delimiter=null;
    
    public boolean debug=false;
+   
+   boolean allowKeysWithNullValues=true;
    
    /** */
    public WrappedProperties(JProperties jp) {
@@ -30,6 +38,15 @@ public class WrappedProperties extends Properties {
    public WrappedProperties(JProperties jp, Character del) {
       jproperties=jp;
       delimiter=del;
+   }
+   
+
+   public boolean isAllowKeysWithNullValues() {
+      return allowKeysWithNullValues;
+   }
+
+   public void setAllowKeysWithNullValues(boolean allowKeysWithNullValues) {
+      this.allowKeysWithNullValues = allowKeysWithNullValues;
    }
    
    ///////////////////////////////////////////////////////////////////////////
@@ -58,6 +75,10 @@ public class WrappedProperties extends Properties {
       
       String value=jproperties.getString(ikey);
       
+      if (value == null && def == null) {
+         log.info("Value is null for property key '"+key+"'");
+      }
+      
       return value == null ? def:value;
    }
    
@@ -85,9 +106,12 @@ public class WrappedProperties extends Properties {
    
    ///////////////////////////////////////////////////////////////////////////
    class KeyEnumeration implements Enumeration {
+      
       Iterator<String> iterator=null;
       
       public KeyEnumeration() {
+         log.debug("Creating KeyEnumeration, allowKeysWithNullValues="+allowKeysWithNullValues);
+
          Set<String> keys=new LinkedHashSet<String>();
          
          if (debug)
@@ -124,6 +148,13 @@ public class WrappedProperties extends Properties {
                currentPath=parentPath;
             } else {
                String key=currentIterator.next();
+               
+               if (key.contains(""+delimiter)) {
+                  throw new JPRuntimeException("Key '"+key+"' at path:"+currentPath+
+                        " contains the delimter '"+delimiter+"'.  When using WrappedProperties "+
+                        "around a JProperties tree - the delimeter cannot be part of a key.");
+               }
+               
                Object value=currentProps.get(key);
                
                if (value instanceof JProperties) {
@@ -150,11 +181,15 @@ public class WrappedProperties extends Properties {
                   else
                      flatkey=key;
                   
-                  if (debug)
-                     System.err.println ("  addding key "+flatkey);
-
-                  
-                  keys.add(flatkey);
+                  if (value != null || allowKeysWithNullValues) {
+                     if (debug)
+                        System.err.println ("     Adding key "+flatkey);
+                     
+                     keys.add(flatkey);
+                  } else {
+                     if (debug)
+                        System.out.println("      Ignoring key w/ null value "+flatkey);
+                  }
                }
             }
          }
@@ -175,4 +210,5 @@ public class WrappedProperties extends Properties {
          return iterator.next();
       }
    }
+
 }

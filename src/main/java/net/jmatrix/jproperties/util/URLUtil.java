@@ -1,15 +1,26 @@
 package net.jmatrix.jproperties.util;
 
 import java.io.IOException;
-import java.net.*;
-import java.security.*;
-import java.security.cert.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.logging.*;
+import net.jmatrix.jproperties.JPRuntimeException;
 
-import sun.misc.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import sun.misc.BASE64Encoder;
 
 /**
  * A set of URL utilities relevant to EProperites.
@@ -40,10 +51,15 @@ public class URLUtil {
          //URL localurl=ClasspathURLUtil.class.
          
          URL sysurl=ClassLoader.getSystemResource(resourcepath);
-         log.debug ("System URL: "+sysurl);
+         log.debug ("System URL from Classloader.getSystemResource(): "+sysurl);
          
          if (sysurl == null) {
-            throw new RuntimeException("Cannot find resource '"+resourcepath+"' in classpath for URL "+surl);
+            sysurl=URLUtil.class.getClassLoader().getResource(resourcepath);
+            log.debug ("System URL from URLUtil.class.getClassLoader().getResource(): "+sysurl);
+         }
+         
+         if (sysurl == null) {
+            throw new JPRuntimeException("Cannot find resource '"+resourcepath+"' in classpath for URL "+surl);
          }
          log.debug (surl+" -> "+sysurl.toExternalForm());
          surl=sysurl.toExternalForm(); // this will start with either file:// or jar:file:/

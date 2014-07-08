@@ -299,7 +299,7 @@ public class JProperties implements Map<String, Object> {
             next=(JProperties)val;
          } else {
             // syntax error - should be properties object.
-            throw new RuntimeException ("Unresolvable put key '"+key+
+            throw new JPRuntimeException ("Unresolvable put key '"+key+
                   "', at component '"+splitKey[0]+
                   "' does not return nested properties, rather "+
                   val.getClass().getName());
@@ -361,7 +361,7 @@ public class JProperties implements Map<String, Object> {
 
    @Override
    public Collection<Object> values() {
-      throw new RuntimeException("values not supported.");
+      throw new JPRuntimeException("values not supported.");
       //return data.values();
    }
    

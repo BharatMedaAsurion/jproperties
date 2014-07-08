@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
@@ -87,7 +88,7 @@ public class IncludePostProcessor implements PostProcessor {
       if (SubstitutionProcessor.containsTokens(include)) {
          // fail?
          throw new 
-         RuntimeException("Unresolvable Substitution in Include directive '"+
+         JPRuntimeException("Unresolvable Substitution in Include directive '"+
                include+"'");
       }
       
@@ -176,14 +177,14 @@ public class IncludePostProcessor implements PostProcessor {
             String m="Error including "+url+
                   ", don't know how to process result type "+obj.getClass().getName();
             if (options.failonerror)
-               throw new RuntimeException(m);
+               throw new JPRuntimeException(m);
             else
                log.warn(m);
          }
       } catch (Exception ex) {
          String m="Error processing "+url+" inclusion.";
          if (options.failonerror)
-            throw new RuntimeException(m, ex);
+            throw new JPRuntimeException(m, ex);
          else
             log.warn(m);
       }

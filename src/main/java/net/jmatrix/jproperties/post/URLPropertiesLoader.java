@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.util.StreamUtil;
@@ -60,7 +61,7 @@ public class URLPropertiesLoader {
             } catch (IOException ex) {
                if (options.failonerror) {
                   throw new 
-                  RuntimeException("Error loading included properties from '"+
+                  JPRuntimeException("Error loading included properties from '"+
                         surl+"'", ex);
                } else {
                   log.warn("Cannot find file '"+surl+"', failonerror=false");
@@ -69,7 +70,7 @@ public class URLPropertiesLoader {
          } else {
             // the file does not exist.  
             if (options.failonerror) {
-               throw new RuntimeException("Cannot find file '"+surl+"' to include.");
+               throw new JPRuntimeException("Cannot find file '"+surl+"' to include.");
             } else {
                log.warn("Cannot find file '"+surl+"' to include. failonerror=false");
             }
@@ -103,7 +104,7 @@ public class URLPropertiesLoader {
                } catch (IOException ex) {
                   if (options.failonerror) {
                      throw new 
-                     RuntimeException("Error loading included properties from '"+
+                     JPRuntimeException("Error loading included properties from '"+
                            surl+"'", ex);
                   } else {
                      log.warn("Cannot find file '"+surl+"', failonerror=false");
@@ -112,7 +113,7 @@ public class URLPropertiesLoader {
             } else {
                // the file does not exist.  
                if (options.failonerror) {
-                  throw new RuntimeException("Cannot find file '"+surl+"' to include.");
+                  throw new JPRuntimeException("Cannot find file '"+surl+"' to include.");
                } else {
                   log.warn("Cannot find file '"+surl+"' to include. failonerror=false");
                }
@@ -157,7 +158,7 @@ public class URLPropertiesLoader {
       } catch (IOException ex) {
          if (options.failonerror) {
             throw new 
-            RuntimeException("Error loading included properties from '"+surl+"'", ex);
+            JPRuntimeException("Error loading included properties from '"+surl+"'", ex);
          } else {
             log.info("Cannot load properties from  '"+surl+"', failonerror=false");
          }
