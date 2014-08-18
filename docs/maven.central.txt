@@ -1,0 +1,22 @@
+
+
+Code is ready for maven central
+
+1) version in pom.xml should not contain -SNAPSHOT
+
+2) mvn clean deploy
+
+this stages to sonatype and releases to public (publish).
+
+3) Should get 2 emails from the repository - one about staging, the other about promotion
+
+The build should be in maven central in 10 min.
+
+Detailed instructions here:
+ http://central.sonatype.org/pages/apache-maven.html
+
+
+That's it.
+
+
+

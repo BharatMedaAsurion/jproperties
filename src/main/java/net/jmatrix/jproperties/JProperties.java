@@ -161,7 +161,7 @@ public class JProperties implements Map<String, Object> {
    /** We no longer extend Properties, but some older systems may still
     * want Properties. */
    public Properties toProperties() {
-      return null;
+      return new WrappedProperties(this);
    }
    
    public List<String> getKeys() {

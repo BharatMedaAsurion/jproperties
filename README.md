@@ -5,6 +5,25 @@ JSON, tree based Properties for java.  Supports variable substitution and
 inclusion of other files.
 
 
+Including in Your Project
+=========================
+
+Maven
+-----
+
+JProperties is availble in Maven Central.  If you are using Maven Central, just include the dependency:
+
+	<dependency>
+	   <groupId>net.jmatrix</groupId>
+	   <artifactId>jproperties</artifactId>
+	   <version>0.9.1</version>
+	</dependency>
+
+Ivy
+---
+
+TBD.
+
 
 Syntax
 ======
@@ -151,7 +170,7 @@ Spring Integration
 We can integrate with Spring and get the benefit of both structured properties when we want them - but also 
 a "flattened" view of the properties available for substitution in applicationContext.xml.
 
-To load JProperties 
+To load JProperties use the following (or similar) in your applicationContext.xml:
 
 	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 	   <property name="ignoreUnresolvablePlaceholders" value="true"/>
@@ -163,5 +182,5 @@ To load JProperties
 	</bean>
 	
 	<bean id="propertiesHolder" class="net.jmatrix.jproperties.spring.JPropertiesSpringHolder">
-	  <property name="url">classpath:/resources/</property>
+	   <property name="url" value="classpath:/resources/application.jproperties"/>
 	</bean>
