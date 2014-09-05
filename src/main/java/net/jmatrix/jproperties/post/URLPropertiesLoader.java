@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
 
 import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
@@ -141,9 +142,21 @@ public class URLPropertiesLoader {
       try {
          URL url=new URL(surl);
          if (options.parse) {
-            JProperties props=Parser.parse(url);
-            props.setParent(parent);
-            result=props;
+            
+            if (options.format == Options.Format.PROPERITES) {
+               log.debug("Options set to java.util.Properties format.");
+               Properties p=new Properties();
+               p.load(url.openStream());
+               
+               JProperties props=new JProperties(p);
+               props.setParent(parent);;
+               result=props;
+            } else {
+               JProperties props=Parser.parse(url);
+               props.setParent(parent);
+               result=props;
+            }
+
          } else {
             // load it as a string
             InputStream is=url.openStream();

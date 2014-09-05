@@ -50,6 +50,11 @@ public class JProperties implements Map<String, Object> {
    public JProperties() { }
    
    /** */
+   public JProperties(Properties p) {
+      this((Map)p);
+   }
+   
+   /** */
    public JProperties(Map<String, Object> map) {
       log.debug("map constructor.");
       if (map == null)
@@ -161,7 +166,9 @@ public class JProperties implements Map<String, Object> {
    /** We no longer extend Properties, but some older systems may still
     * want Properties. */
    public Properties toProperties() {
-      return new WrappedProperties(this);
+      WrappedProperties p= new WrappedProperties(this);
+      p.setAllowKeysWithNullValues(false);
+      return p;
    }
    
    public List<String> getKeys() {

@@ -85,7 +85,7 @@
                <classpathelement refid="project.class.path"/>
            </classpath -->
            <src>
-               <pathelement location="test" />
+               <pathelement location="src/test" />
            </src>
         </javac>
 
@@ -99,7 +99,7 @@
     </target>
     
     <!-- Assemble creates the deployable artifacts, like jars, wars, zips -->
-    <target name="assemble" depends="compile-tests">
+    <target name="assemble" depends="compile">
         <copy todir="build/test.files">
            <fileset dir="test.files" includes="**"/>
         </copy>
@@ -146,6 +146,9 @@
              manifest. -->
         <mkdir dir="build/dep-classes"/>
         <unjar src="jars/commons-logging.jar" dest="build/dep-classes"/>
+        <unjar src="jars/jackson-mapper-asl.jar" dest="build/dep-classes"/>
+        <unjar src="jars/jackson-core-asl.jar" dest="build/dep-classes"/>
+
         <jar destfile="build/${ant.project.name}_deps-${version}.jar">
             <fileset dir="build/dep-classes" includes="**/**" excludes="META-INF/**"/>
             <fileset dir="build/classes" includes="**/**"/>
@@ -155,7 +158,7 @@
               <!-- Information about the program itself -->
               <attribute name="Version" value="${version}"/>
               <attribute name="SVN-Revision" value="xx"/>
-              <attribute name="Main-Class" value="net.jmatrix.eproperties.cli.EPropertiesCLI"/>
+              <attribute name="Main-Class" value="net.jmatrix.jproperties.cli.JPropertiesCLI"/>
             </manifest>
         </jar>
     </target>
