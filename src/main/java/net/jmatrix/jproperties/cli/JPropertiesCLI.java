@@ -13,7 +13,7 @@ import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.WrappedProperties;
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.util.ArgParser;
-import net.jmatrix.jproperties.util.JDK14LogConfig;
+import net.jmatrix.jproperties.util.GenericLogConfig;
 import net.jmatrix.jproperties.util.URLUtil;
 
 
@@ -101,10 +101,13 @@ public class JPropertiesCLI {
       
       String delim=ap.getStringArg("-d");
       String outfilename=ap.getStringArg("-o");
-      debug=ap.getBooleanArg("-v");
+      debug=ap.getBooleanArg("-v") || ap.getBooleanArg("-vv");
       
       if (debug) {
-         JDK14LogConfig.startup();
+         if (ap.getBooleanArg("-vv")) {
+            GenericLogConfig.debug=true;
+         }
+         GenericLogConfig.bootstrap();
       }
       
       String inputurlstring=ap.getLastArg();

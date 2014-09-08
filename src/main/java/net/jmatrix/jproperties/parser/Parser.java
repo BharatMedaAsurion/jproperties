@@ -17,7 +17,8 @@ import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.post.IncludePostProcessor;
 import net.jmatrix.jproperties.post.PostProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
-import net.jmatrix.jproperties.util.JDK14LogConfig;
+import net.jmatrix.jproperties.util.GenericLogConfig;
+import net.jmatrix.jproperties.util.URLUtil;
 
 import org.apache.commons.logging.Log;
 import org.codehaus.jackson.JsonFactory;
@@ -33,8 +34,7 @@ public class Parser {
 
    /** */
    public static void main(String[] args) throws Exception {
-      JDK14LogConfig.startup();
-
+      GenericLogConfig.bootstrap();
       File input=new File(args[0]);
       
       JProperties p=parse(input);
@@ -58,6 +58,15 @@ public class Parser {
       //System.out.println ("Home: "+p.get("home"));
    }
    
+   /** */
+   public static JProperties parse(String surl) throws IOException {
+      String iurl=URLUtil.convertClasspathURL(surl);
+      log.debug("Parser convered URL '"+surl+"' -> '"+iurl+"'");
+      URL url=new URL(iurl); 
+      return parse(url);
+   }
+   
+   /** Loads JProperties from a file. */
    public static JProperties parse(File f) throws IOException {
       JProperties p=parse(new FileReader(f));
       p.setUrl(f.toURI().toURL().toString());

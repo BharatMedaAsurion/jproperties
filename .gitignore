@@ -6,4 +6,5 @@ dist
 .ant-targets-build.xml
 target
 *~
+.settings
 
