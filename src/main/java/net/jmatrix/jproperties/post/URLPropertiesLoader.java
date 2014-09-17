@@ -51,7 +51,7 @@ public class URLPropertiesLoader {
           lcurl.startsWith("file:/") || lcurl.startsWith("jar:file:/")) {
          log.debug("Loading as absolute URL: "+surl); 
          result=loadFromURL(surl, options, parent);
-      } else if (surl.startsWith("/")) { 
+      } else if (new File(surl).isFile()) { 
          log.debug("Loading as absolute file: "+surl);
          // ok, just try to open it as a local file.
          File f=new File(surl);
