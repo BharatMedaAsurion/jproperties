@@ -45,7 +45,7 @@ public class URLPropertiesLoader {
       
       // Translate classpath:// URLs to Java internal URLs.
       surl=URLUtil.convertClasspathURL(surl);
-      String lcurl=surl.toLowerCase();    
+      String lcurl=surl.toLowerCase(); 
       
       if (lcurl.startsWith("http://") || lcurl.startsWith("https://") ||
           lcurl.startsWith("file:/") || lcurl.startsWith("jar:file:/")) {
