@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import net.jmatrix.jproperties.JPRuntimeException;
@@ -45,13 +47,13 @@ public class URLPropertiesLoader {
       
       // Translate classpath:// URLs to Java internal URLs.
       surl=URLUtil.convertClasspathURL(surl);
-      String lcurl=surl.toLowerCase();
+      String lcurl=surl.toLowerCase();    
       
       if (lcurl.startsWith("http://") || lcurl.startsWith("https://") ||
           lcurl.startsWith("file:/") || lcurl.startsWith("jar:file:/")) {
          log.debug("Loading as absolute URL: "+surl); 
          result=loadFromURL(surl, options, parent);
-      } else if (surl.startsWith("/")) { 
+      } else if (new File(surl).isFile()) { 
          log.debug("Loading as absolute file: "+surl);
          // ok, just try to open it as a local file.
          File f=new File(surl);
