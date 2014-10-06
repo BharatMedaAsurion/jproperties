@@ -1,0 +1,6 @@
+{
+   "foo":"bar",
+   "env":"$[env.properties]",
+   "env":"$[override.jproperties]",
+   "baz":"foo"
+}

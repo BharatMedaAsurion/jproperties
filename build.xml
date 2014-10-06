@@ -7,8 +7,10 @@
    <!-- Full build, deletes everything, and builds everything. -->
    <target name="full" depends="dist" />
 
-   <property file="version.properties"/>
-
+    <!-- version from pom.xml -->
+   <!-- property file="version.properties"/ -->
+   <property name="version" value="ANT"/>
+    
    <!-- Initialize all build variables. -->
    <target name="init">
       <tstamp/>
@@ -56,18 +58,18 @@
            <fileset dir="src" includes="**/*.properties" />
         </copy>
         -->
-        
+        <!--
         <copy todir="build/classes/net/jmatrix/jproperties">
            <fileset dir="${basedir}" includes="version.properties" />
         </copy>
+        -->
     </target>
     
     <!-- Compile JUnit tests-->
     <target name="compile-tests" depends="compile"> 
         <mkdir dir="build/test-classes" />
         
-        <javac destdir="build/test-classes" 
-            excludes="**/*.old" debug="true">
+        <javac destdir="build/test-classes" debug="true">
             <!--
            <classpath>
               <pathelement refid="project.class.path"/>
@@ -81,17 +83,17 @@
             -->
            <classpath refid="junit.class.path"/>
           
-           <!-- classpath>
+           <!--classpath>
                <classpathelement refid="project.class.path"/>
            </classpath -->
            <src>
-               <pathelement location="src/test" />
+               <pathelement location="src/test/java" />
            </src>
         </javac>
 
-        <copy todir="build/test-classes">
+        <!--copy todir="build/test-classes">
            <fileset dir="test" includes="**/*.properties,**/*.png" />
-        </copy>
+        </copy -->
         
         <jar destfile="build/${ant.project.name}-tests-${version}.jar">
             <fileset dir="build/test-classes" includes="**/**"/>
@@ -127,7 +129,7 @@
         </chmod>
         
         <copy todir="build" file="release.txt"/>
-        <copy todir="build" file="version.properties"/>
+        <!-- copy todir="build" file="version.properties"/ -->
         
         
         <jar destfile="build/${ant.project.name}-${version}.jar">
@@ -197,7 +199,7 @@
             <formatter type="xml"/>
             
             <batchtest todir="build/junit.report">
-              <fileset dir="test">
+              <fileset dir="src/test/java">
                 <include name="**/*Test.java"/>
                 <include name="**/Test*.java"/>
               </fileset>

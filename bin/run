@@ -3,10 +3,6 @@
 
 BINDIR=`dirname $0`
 
-. $BINDIR/../version.properties
-
-echo "EProperties version=${version}"
-
 BUILD_DIR=$BINDIR/../
 JAR_DIR=$BUILD_DIR/jars
 
@@ -18,7 +14,7 @@ do
 done
 
 
-export LOCALCLASSPATH=$BUILD_DIR/jproperties-${version}.jar:$LOCALCLASSPATH
+export LOCALCLASSPATH=$BUILD_DIR/classes:$LOCALCLASSPATH
 
 echo CP: $LOCALCLASSPATH
 

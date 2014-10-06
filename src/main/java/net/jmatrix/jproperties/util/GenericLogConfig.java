@@ -62,7 +62,7 @@ public class GenericLogConfig {
    }
    
    /** */
-   static final void initLog4J(String level) {
+   public static final void initLog4J(String level) {
       System.out.println("Bootstrapping Log4J w/ Default level '"+level+"'");
       
       Properties p=new Properties();
@@ -87,7 +87,7 @@ public class GenericLogConfig {
    }
    
    /** */
-   static final void initJavaUtilLogging() {
+   public static final void initJavaUtilLogging() {
       LogManager logManager=LogManager.getLogManager();
       
       Logger logger=Logger.getLogger("");
