@@ -9,13 +9,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
-import net.jmatrix.jproperties.post.IncludePostProcessor;
-import net.jmatrix.jproperties.post.PostProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 import net.jmatrix.jproperties.util.GenericLogConfig;
 import net.jmatrix.jproperties.util.URLUtil;
@@ -48,8 +44,8 @@ public class Parser {
          System.out.println ("   key: "+key);
       }
       
-      PostProcessor post=new IncludePostProcessor();
-      post.post(p);
+//      PostProcessor post=new IncludePostProcessor();
+//      post.post(p);
       
       log.debug("Done Postprocessing.");
       
@@ -68,40 +64,33 @@ public class Parser {
    
    /** Loads JProperties from a file. */
    public static JProperties parse(File f) throws IOException {
-      JProperties p=parse(new FileReader(f));
-      p.setUrl(f.toURI().toURL().toString());
-      
-      PostProcessor post=new IncludePostProcessor();
-      post.post(p);
-      
+      JProperties p=parse(new FileReader(f),f.toURI().toURL().toString());
+
       return p;
    }
    
    public static JProperties parse(URL url) throws IOException {
       InputStream is=url.openStream();
-      log.debug("Stream opend for "+url+": "+is);
+      log.debug("Stream opened for "+url+": "+is);
       
-      JProperties p=parse(new InputStreamReader(is));
-      p.setUrl(url.toString());
-      
-      PostProcessor post=new IncludePostProcessor();
-      post.post(p);
+      JProperties p=parse(new InputStreamReader(is), url.toString());
       
       return p;
    }
    
-   public static JProperties parse(Reader r) throws JsonParseException, JsonMappingException, IOException {
-      TypeReference<LinkedHashMap<String,Object>> typeRef  = 
-            new TypeReference<LinkedHashMap<String,Object>>() {}; 
+   public static JProperties parse(Reader r, String surl) throws JsonParseException, JsonMappingException, IOException {
+      TypeReference<JProperties> typeRef  = 
+            new TypeReference<JProperties>() {}; 
              
              
       JsonFactory factory=new JsonFactory();
       factory.enable(JsonParser.Feature.ALLOW_COMMENTS);
       
       ObjectMapper om=new ObjectMapper(factory);
-      Map<String, Object> map=om.readValue(r, typeRef);
       
-      JProperties p=new JProperties(map);
+      JProperties p=new JProperties();
+      p.setUrl(surl);
+      om.readerForUpdating(p).readValue(r);
       
       return p;
    }
@@ -115,7 +104,6 @@ public class Parser {
       
       w.write(s);
       w.flush();
-      //w.close();
    }
    
    /** */

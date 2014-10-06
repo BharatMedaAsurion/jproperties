@@ -1,6 +1,19 @@
 {
    "foo":"bar",
-   "env":"$[env.properties]",
+   
+   /* Note env is included twice, and the second copy is merged into existing, 
+      overriding duplicates and adding itself to the resultant. */
+   "env":"$[env.jproperties]",
    "env":"$[override.jproperties]",
-   "baz":"foo"
+   "baz":"foo",
+   
+   "a.big.url":"${env->root.url}/foo/bar/baz/foobar.html",
+   
+   "tree":{
+      "test.string":"foo",
+      "test.list":["one", "two", "three"],
+      "test.jproperties":{
+         "foo":"bar"
+      }
+   }
 }

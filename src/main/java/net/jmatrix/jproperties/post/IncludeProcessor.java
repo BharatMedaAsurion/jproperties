@@ -32,14 +32,14 @@ import org.apache.commons.logging.Log;
  *   or URL based inclusion: 
  *   $[http://foo.bar.com/baz.properties]
  */
-public class IncludePostProcessor implements PostProcessor {
+public class IncludeProcessor {
    static final Log log=ClassLogFactory.getLog();
    
    static String INCLUDE_REGEX="^\\$\\[(.*)\\]$";
    
    static Pattern INCLUDE_PATTERN=Pattern.compile(INCLUDE_REGEX);
    
-   @Override
+   //@Override
    public void post(JProperties p) {
       for (String key:p.keySet()) {
          Object ovalue=p.get(key);
@@ -67,10 +67,20 @@ public class IncludePostProcessor implements PostProcessor {
       }
    }
    
+   public static final boolean containsInclude(Object value) {
+      if (value == null)
+         return false;
+      if (value instanceof String) {
+         String svalue=(String)value;
+         return Pattern.matches(INCLUDE_REGEX, svalue);
+      }
+      return false;
+   }
+   
    ///////////////////////////////////////////////////////////////////////////
    
    /** Top entry into include, delegates to various types of includers */
-   private static final Object include(String value, JProperties parent) {
+   public static final Object include(String value, JProperties parent) {
       log.debug("include "+value);
       
       Matcher matcher=INCLUDE_PATTERN.matcher(value);

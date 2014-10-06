@@ -149,7 +149,7 @@ public class URLPropertiesLoader {
                p.load(url.openStream());
                
                JProperties props=new JProperties(p);
-               props.setParent(parent);;
+               props.setParent(parent);
                result=props;
             } else {
                JProperties props=Parser.parse(url);

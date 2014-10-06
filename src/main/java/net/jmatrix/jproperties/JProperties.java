@@ -3,6 +3,7 @@ package net.jmatrix.jproperties;
 import java.util.*;
 
 import net.jmatrix.jproperties.parser.Parser;
+import net.jmatrix.jproperties.post.IncludeProcessor;
 import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
@@ -60,6 +61,11 @@ public class JProperties implements Map<String, Object> {
       if (map == null)
          throw new NullPointerException("Constructing JProperties from Null map.");
       
+      addAll(map);
+   }
+   
+
+   public void addAll(Map<String, Object> map) {
       for (String key:map.keySet()) {
          Object value=map.get(key);
          if (value == null) {
@@ -81,6 +87,7 @@ public class JProperties implements Map<String, Object> {
          }
       }
    }
+   
    
    public String toString() {
       return Parser.writeAsJson(this);
@@ -194,6 +201,34 @@ public class JProperties implements Map<String, Object> {
       this.processInclusions = processInclusions;
    }
    
+   public void deepMerge(JProperties jp) {
+      log.debug("Merging "+jp.getUrl()+" -> "+this.getUrl());
+      
+      Set<String> allkeys=new LinkedHashSet<String>();
+      allkeys.addAll(keySet());
+      allkeys.addAll(jp.keySet());
+      
+      for (String key:allkeys) {
+         Object newval=jp.get(key);
+         Object oldval=get(key);
+         
+         if (newval == null) {
+            // do nothing.
+         } else if (oldval == null && newval != null) {
+            // overwrite.
+            this.put(key, newval);
+         } else {  // newval != null && oldval != null
+            // merge.
+            if (oldval instanceof JProperties && newval instanceof JProperties) {
+               ((JProperties)oldval).deepMerge((JProperties)newval);
+            } else {
+               // overwrite
+               this.put(key, newval);
+            }
+         }
+      }
+   }
+   
    ///////////////////////////////////////////////////////////////////////////
    ///////////////////////////// Map interface ///////////////////////////////
    // overiding get to process complex keys and substitution.
@@ -288,7 +323,39 @@ public class JProperties implements Map<String, Object> {
       String splitKey[]=key.split("\\-\\>");
       
       if (splitKey.length == 1) {
-         return data.put(key, value);
+         if (value != null && value instanceof String &&
+             IncludeProcessor.containsInclude(value)) {
+            Object result=IncludeProcessor.include((String)value, this);
+            
+            if (result instanceof String ||
+                result instanceof List) {
+               // overwrite
+               return data.put(key, result);
+            } else if (result instanceof JProperties) {
+               Object currentValue=get(key);
+               if (currentValue == null){
+                  return data.put(key, result);
+               } else if (currentValue instanceof String ||
+                   currentValue instanceof List) {
+                  log.debug("Overwriting key '"+key+"' with included properties.");
+                  return data.put(key, result);
+               } else if (currentValue instanceof JProperties) {
+                  // current value is JProperites
+                  // new value included is JProperties
+                  // merge.
+                  ((JProperties)currentValue).deepMerge((JProperties)result);
+                  return put(key, currentValue);
+               } else {
+                  throw new RuntimeException("Current value has unknown "
+                        + "data type '"+currentValue.getClass().getName()+"'");
+               }
+            } else {
+               throw new RuntimeException("Include Processor returned value "
+                     + "of unknown type '"+result.getClass().getName()+"'");
+            }
+         } else {
+            return data.put(key, value);
+         }
       } else {
          // trim key, and recursively put.
          
