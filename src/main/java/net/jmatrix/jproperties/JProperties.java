@@ -323,7 +323,10 @@ public class JProperties implements Map<String, Object> {
       String splitKey[]=key.split("\\-\\>");
       
       if (splitKey.length == 1) {
-         if (value != null && value instanceof String &&
+         if (value == null) {
+            return data.remove(key);
+         }
+         else if (value instanceof String &&
              IncludeProcessor.containsInclude(value)) {
             Object result=IncludeProcessor.include((String)value, this);
             
@@ -353,6 +356,8 @@ public class JProperties implements Map<String, Object> {
                throw new RuntimeException("Include Processor returned value "
                      + "of unknown type '"+result.getClass().getName()+"'");
             }
+         } else if (value instanceof Map && !(value instanceof JProperties)) {
+            return data.put(key, new JProperties((Map)value));
          } else {
             return data.put(key, value);
          }
