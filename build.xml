@@ -189,11 +189,12 @@
                 <fileset dir="build/jars">
                   <include name="*.jar"/>
                 </fileset>
-
+                
                 <pathelement location="build/${ant.project.name}-${version}.jar"/>
                 <pathelement location="build/${ant.project.name}-tests-${version}.jar"/>
+                
+                <pathelement location="src/test/resources"/>
             </classpath>
-
             
             <formatter type="plain"/>
             <formatter type="xml"/>
@@ -202,6 +203,7 @@
               <fileset dir="src/test/java">
                 <include name="**/*Test.java"/>
                 <include name="**/Test*.java"/>
+                <exclude name="**/AbstractTest.java"/>
               </fileset>
             </batchtest>
         </junit>
