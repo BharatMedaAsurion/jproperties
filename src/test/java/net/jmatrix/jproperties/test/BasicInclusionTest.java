@@ -42,8 +42,16 @@ public class BasicInclusionTest extends AbstractTest {
       
       JProperties jp=Parser.parse(url);
       
+      JPValidate.validate(jp);
+      Assert.assertNotNull("The Source URL should not be null", jp.getUrl());
+      
       JProperties included=jp.getProperties("included");
       Assert.assertNotNull(included);
+      Assert.assertNotNull("The Source URL should not be null", included.getUrl());
+      
+      Assert.assertNotSame("The included URL should be different than parent", 
+            jp.getUrl(), included.getUrl());
+      
       
       String value=included.getString("key");
       
@@ -67,6 +75,7 @@ public class BasicInclusionTest extends AbstractTest {
       Assert.assertNotNull("Cannot file URL for path "+path, url);
       
       JProperties jp=Parser.parse(url);
+      JPValidate.validate(jp);
       
       Assert.assertNotNull(jp.getProperties("system"));
    }
@@ -80,6 +89,7 @@ public class BasicInclusionTest extends AbstractTest {
       Assert.assertNotNull("Cannot file URL for path "+path, url);
       
       JProperties jp=Parser.parse(url);
+      JPValidate.validate(jp);
       
       Assert.assertNotNull(jp.getString("class.path"));
    }
