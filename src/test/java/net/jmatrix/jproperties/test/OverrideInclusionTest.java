@@ -2,6 +2,7 @@ package net.jmatrix.jproperties.test;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class OverrideInclusionTest extends AbstractTest {
    @BeforeClass
@@ -14,5 +15,8 @@ public class OverrideInclusionTest extends AbstractTest {
       
    }
    
-   
+   @Test
+   public void test() {
+      log("Override inclusion test.");
+   }
 }

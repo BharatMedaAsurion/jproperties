@@ -1,6 +1,8 @@
 
 JProperties Release Notes
 
+0.9.7 - 06 Oct 2014
+  - Better unit tests
 
 
 0.9.1 - 08jULY2014
