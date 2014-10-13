@@ -1,5 +1,9 @@
 package net.jmatrix.jproperties;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import net.jmatrix.jproperties.parser.Parser;
@@ -116,6 +120,20 @@ public class JProperties implements Map<String, Object> {
       return c;
    }
    
+   
+   public void load(String surl) throws IOException {
+      JProperties jp=Parser.parse(surl);
+      this.setUrl(surl);
+      this.deepMerge(jp);
+   }
+   
+   public void load(File f) throws MalformedURLException, IOException {
+      load(f.toURI().toURL().toString());
+   }
+   
+   public void load(URL url) throws IOException {
+      load(url.toString());
+   }
    
    /**
     * This method will search up a tree of EProoperties objects, looking for 
