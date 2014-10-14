@@ -92,7 +92,7 @@ public final class SubstitutionProcessor {
    /** */
    private static final Object processSubstitution(String s, JProperties p, 
                                                    Class returnType, int iter) {
-      log.debug("processSubstitution("+iter+":"+s+"', to return type "+returnType+")");
+      log.trace("processSubstitution("+iter+":"+s+"', to return type "+returnType+")");
       
       if (returnType == null)
          returnType=Object.class;
@@ -124,7 +124,7 @@ public final class SubstitutionProcessor {
     * String.  */
    private static final Object completeReplace(String s, JProperties p, 
                                                int iter) {
-      log.debug("Complete replace of token '"+s+"', iter "+iter);
+      log.trace("Complete replace of token '"+s+"', iter "+iter);
       
       SubstitutionToken subToken=new SubstitutionToken(s);
       String key=subToken.getKey();
@@ -137,7 +137,7 @@ public final class SubstitutionProcessor {
       } else {
          if (val instanceof String) {
             String sval=(String)val;
-            log.debug("Complete replace, result is string '"+sval+"'");
+            log.trace("Complete replace, result is string '"+sval+"'");
             if (containsTokens(sval)) {
                return processSubstitution(sval, p, Object.class, iter);
             }
@@ -150,7 +150,7 @@ public final class SubstitutionProcessor {
     * This is replacing a partial key.
     */
    private static final Object recursiveReplace(String s, JProperties p, int iter) {
-      log.debug("Recursive replace of token '"+s+"', iter "+iter);
+      log.trace("Recursive replace of token '"+s+"', iter "+iter);
       // the word 'recursive' in this sense is really a recursion to support
       // nested tokens.  Which is why it cannot fix the other, different
       // recursion problem noted below.
