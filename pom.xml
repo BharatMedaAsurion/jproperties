@@ -3,7 +3,7 @@
 
    <groupId>net.jmatrix</groupId>
    <artifactId>jproperties</artifactId>
-   <version>0.9.8</version>
+   <version>1.0.0</version>
    <packaging>jar</packaging>
 
    <licenses>
@@ -41,18 +41,17 @@
          <version>1.1</version>
       </dependency>
 
-      <dependency>
-         <groupId>org.codehaus.jackson</groupId>
-         <artifactId>jackson-core-asl</artifactId>
-         <version>1.9.13</version>
-      </dependency>
-
-      <dependency>
-         <groupId>org.codehaus.jackson</groupId>
-         <artifactId>jackson-mapper-asl</artifactId>
-         <version>1.9.13</version>
-      </dependency>
-
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.3.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.3.2</version>
+    </dependency>
+    
    </dependencies>
 
    <scm>
@@ -184,6 +183,16 @@
                   <descriptorRef>jar-with-dependencies</descriptorRef>
                </descriptorRefs>
             </configuration>
+            
+            <executions>
+             <execution>
+               <id>make-assembly</id> <!-- this is used for inheritance merges -->
+               <phase>package</phase> <!-- bind to the packaging phase -->
+               <goals>
+                 <goal>single</goal>
+               </goals>
+             </execution>
+            </executions>
          </plugin>
       </plugins>
    </build>

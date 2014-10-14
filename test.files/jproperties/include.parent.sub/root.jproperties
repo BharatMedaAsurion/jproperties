@@ -1,0 +1,4 @@
+{
+   "env":"foo",
+   "first":"$[first.include.jproperties]"
+}

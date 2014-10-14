@@ -1,0 +1,7 @@
+{
+   "deeper":{
+      "foo-properties":"$[${env}.jproperties]"
+   },
+   "foo-properties":"$[${env}.jproperties]",
+   "list":["$[${env}.jproperties]","$[${env}.jproperties]"]
+}

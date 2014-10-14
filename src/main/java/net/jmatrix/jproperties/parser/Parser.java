@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import net.jmatrix.jproperties.JPRuntimeException;
@@ -17,13 +19,20 @@ import net.jmatrix.jproperties.util.GenericLogConfig;
 import net.jmatrix.jproperties.util.URLUtil;
 
 import org.apache.commons.logging.Log;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.type.TypeReference;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.TypeBindings;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.type.TypeModifier;
+
 
 public class Parser {
    public static Log log=ClassLogFactory.getLog();
@@ -43,10 +52,6 @@ public class Parser {
       for (String key:p.keySet()) {
          System.out.println ("   key: "+key);
       }
-      
-//      PostProcessor post=new IncludePostProcessor();
-//      post.post(p);
-      
       log.debug("Done Postprocessing.");
       
       System.out.println("PostTree: "+writeAsJson(p));
@@ -54,31 +59,41 @@ public class Parser {
       //System.out.println ("Home: "+p.get("home"));
    }
    
-   /** */
-   public static JProperties parse(String surl) throws IOException {
-      String iurl=URLUtil.convertClasspathURL(surl);
-      log.debug("Parser convered URL '"+surl+"' -> '"+iurl+"'");
-      URL url=new URL(iurl); 
-      return parse(url);
+   public static JProperties parse(String surl) throws MalformedURLException, IOException {
+      return parse(new URL(surl));
    }
    
-   /** Loads JProperties from a file. */
    public static JProperties parse(File f) throws IOException {
-      JProperties p=parse(new FileReader(f),f.toURI().toURL().toString());
-
-      return p;
+      return parse(f.toURI().toURL());
    }
    
    public static JProperties parse(URL url) throws IOException {
-      InputStream is=url.openStream();
-      log.debug("Stream opened for "+url+": "+is);
-      
-      JProperties p=parse(new InputStreamReader(is), url.toString());
-      
+      JProperties p=new JProperties();
+      parseInto(p, url);
       return p;
    }
    
-   public static JProperties parse(Reader r, String surl) throws JsonParseException, JsonMappingException, IOException {
+   /** */
+   public static void parseInto(JProperties p, String surl) throws IOException {
+      String iurl=URLUtil.convertClasspathURL(surl);
+      log.debug("Converted URL '"+surl+"' -> '"+iurl+"'");
+      URL url=new URL(iurl); 
+      parseInto(p, url);
+   }
+   
+   /** Loads JProperties from a file. */
+   public static void parseInto(JProperties p, File f) throws IOException {
+      parseInto(p, new FileReader(f),f.toURI().toURL().toString());
+   }
+   
+   public static void parseInto(JProperties p, URL url) throws IOException {
+      InputStream is=url.openStream();
+      log.debug("Stream opened for "+url+": "+is);
+      
+      parseInto(p, new InputStreamReader(is), url.toString());
+   }
+   
+   private static void parseInto(JProperties props, Reader r, String surl) throws JsonParseException, JsonMappingException, IOException {
       TypeReference<JProperties> typeRef  = 
             new TypeReference<JProperties>() {}; 
              
@@ -88,11 +103,26 @@ public class Parser {
       
       ObjectMapper om=new ObjectMapper(factory);
       
-      JProperties p=new JProperties();
-      p.setUrl(surl);
-      om.readerForUpdating(p).readValue(r);
+//      TypeFactory typeFactory = om.getTypeFactory();
+//      MapType mapType = typeFactory.constructMapType(JProperties.class, String.class, Object.class);
+//      
+//      om.setTypeFactory(typeFactory.withModifier(new TypeModifier(){
+//
+//         @Override
+//         public JavaType modifyType(JavaType javatype, Type type,
+//               TypeBindings bindings, TypeFactory typefactory) {
+//            
+//            System.out.println("  Jackson asking for type "+javatype+", "+type+", typebinding: "+bindings);
+//            return javatype;
+//         }
+//         
+//      }));
       
-      return p;
+      //JProperties p=new JProperties();
+      props.setUrl(surl);
+      
+      om.readerForUpdating(props).readValue(r);
+      // om.readValue(r, mapType);
    }
    
    /**
@@ -121,8 +151,9 @@ public class Parser {
    
    public static final String writeAsJson(Object o, boolean indent) {
       ObjectMapper om=new ObjectMapper();
-      om.configure(SerializationConfig.Feature.INDENT_OUTPUT, indent);
-      om.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+      om.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+      om.enable(SerializationFeature.INDENT_OUTPUT);
+      
       try {
          if (o == null)
             return "null";

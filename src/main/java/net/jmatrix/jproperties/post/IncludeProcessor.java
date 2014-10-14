@@ -148,9 +148,8 @@ public class IncludeProcessor {
          methodArgs=aargs;
       }
       
-      log.info("Method name '"+methodName+"'");
-      log.info("sargs: "+sargs);
-      log.info(""+(methodArgs == null?"":Arrays.asList(methodArgs).toString()));
+      log.debug("Method name '"+methodName+"' ("+sargs+")");
+      log.trace(""+(methodArgs == null?"":Arrays.asList(methodArgs).toString()));
       
       try {
          Class clazz=Class.forName(className);
@@ -176,7 +175,8 @@ public class IncludeProcessor {
          if (obj == null) {
             log.error("Method include of "+className+"."+methodName+"("+sargs+") returned null.");
          } else if (obj instanceof Map) {
-            JProperties p=new JProperties((Map)obj);
+            JProperties p=new JProperties();
+            p.addAll((Map)obj);
             
             log.debug("Loaded "+p.size()+" properties with MethodLoader.");
             

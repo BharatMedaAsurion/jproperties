@@ -4,7 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.post.IncludeProcessor;
@@ -12,6 +20,9 @@ import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
 import org.apache.commons.logging.Log;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
@@ -32,6 +43,7 @@ import org.apache.commons.logging.Log;
  *  
  */
 @SuppressWarnings("serial")
+//@JsonDeserialize(as=JProperties.class)
 public class JProperties implements Map<String, Object> {
    public static long DEFAULT_LONG=-1;
    public static int DEFAULT_INT=-1;
@@ -51,25 +63,44 @@ public class JProperties implements Map<String, Object> {
    private boolean processSubstitutions=true;
    private boolean processInclusions=true;
    
+   
+   private static AtomicInteger atomicIdCounter=new AtomicInteger();
+   
+   int id=atomicIdCounter.getAndIncrement();
+
+   
    /** */
-   public JProperties() { }
+   public JProperties() {
+      log.trace("Empty constructor:"+id);
+   }
    
    /** */
    public JProperties(Properties p) {
       this((Map)p);
+      log.trace("Properties constructor:"+id);
    }
    
    /** */
    public JProperties(Map<String, Object> map) {
-      log.debug("map constructor.");
+      log.trace("map constructor:"+id);
       if (map == null)
          throw new NullPointerException("Constructing JProperties from Null map.");
       
       addAll(map);
    }
    
+   /** */
+   public JProperties(JProperties parent, Map<String, Object> map) {
+      log.trace("Map constructor with parent:"+id);
+      this.parent=parent;
+      if (map == null)
+         throw new NullPointerException("Constructing JProperties from Null map.");
+      addAll(map);
+   }
+   
 
    public void addAll(Map<String, Object> map) {
+      log.trace("addAll(Map)");
       for (String key:map.keySet()) {
          Object value=map.get(key);
          if (value == null) {
@@ -78,8 +109,10 @@ public class JProperties implements Map<String, Object> {
                     value instanceof Number ||
                     value instanceof Boolean) {
             put(key, value);
+         } else if (value instanceof JProperties) {
+            put(key, value);
          } else if (Map.class.isAssignableFrom(value.getClass())) {
-            JProperties np=new JProperties((Map)value);
+            JProperties np=new JProperties(this, (Map)value);
             np.parent=this;
             put(key, np);
          } else if (List.class.isAssignableFrom(value.getClass())) {
@@ -100,16 +133,27 @@ public class JProperties implements Map<String, Object> {
    
    /** Used when creating a JProperties tree from a generic String/Object Map. */
    private static final List convertlist(List l, JProperties parent) {
+      log.trace("Convert list");
       List c=new ArrayList();
       for (Object o:l) {
          if (o == null) {}
-         else if (o instanceof String ||
-             o instanceof Number ||
+         else if (o instanceof String) {
+            String s=(String)o;
+            if (IncludeProcessor.containsInclude(s)) {
+               Object oo=IncludeProcessor.include(s, parent);
+               c.add(oo);
+            } else {
+               c.add(s);
+            }
+         }
+         else if (o instanceof Number ||
              o instanceof Boolean) {
             c.add(o);
          } else if (Map.class.isAssignableFrom(o.getClass())) {
-            JProperties p=new JProperties((Map)o);
+            JProperties p=new JProperties();
+            
             p.setParent(parent);
+            p.addAll((Map)o);
             c.add(p);
          } else if (List.class.isAssignableFrom(o.getClass())) {
             c.add(convertlist((List)o, parent));
@@ -122,9 +166,7 @@ public class JProperties implements Map<String, Object> {
    
    
    public void load(String surl) throws IOException {
-      JProperties jp=Parser.parse(surl);
-      this.setUrl(surl);
-      this.deepMerge(jp);
+      Parser.parseInto(this, surl);
    }
    
    public void load(File f) throws MalformedURLException, IOException {
@@ -150,6 +192,7 @@ public class JProperties implements Map<String, Object> {
          return val;
       else {
          if (parent != null) {
+            //log.debug("Searching parent root="+isRoot()+" with url : "+parent.url);
             return parent.findValue(key);
          } else {
             //log.debug("findValue(): parent is null at Path='"+getPath()+"'");
@@ -157,6 +200,10 @@ public class JProperties implements Map<String, Object> {
       }
       
       return val;
+   }
+   
+   boolean isRoot() {
+      return parent==null;
    }
    
    public String findString(String key) {
@@ -336,6 +383,7 @@ public class JProperties implements Map<String, Object> {
     *      2) A list - which can contain primitives or JProperties maps
     *      3) A nested JProperties object.
     */
+   @JsonAnySetter
    @Override
    public Object put(String key, Object value) {
       String splitKey[]=key.split("\\-\\>");
@@ -348,7 +396,12 @@ public class JProperties implements Map<String, Object> {
              IncludeProcessor.containsInclude(value)) {
             Object result=IncludeProcessor.include((String)value, this);
             
-            if (result instanceof String ||
+            if (result == null) {
+               // hmm... do nothing.
+               log.debug("IncludeProcessor got null value processing '"+(String)value+"'. ignoring");
+               return get(key);
+            }
+            else if (result instanceof String ||
                 result instanceof List) {
                // overwrite
                return data.put(key, result);
@@ -375,7 +428,10 @@ public class JProperties implements Map<String, Object> {
                      + "of unknown type '"+result.getClass().getName()+"'");
             }
          } else if (value instanceof Map && !(value instanceof JProperties)) {
-            return data.put(key, new JProperties((Map)value));
+            JProperties jp=new JProperties(this, (Map)value);
+            return data.put(key, jp);
+         } else if (value instanceof List) {
+            return data.put(key, convertlist((List)value, this));
          } else {
             return data.put(key, value);
          }

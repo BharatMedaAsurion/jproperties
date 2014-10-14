@@ -55,9 +55,14 @@ public class GenericLogConfig {
       System.out.println ("Log is "+loggerClassname);
       
       if (loggerClassname.toLowerCase().contains("log4j")) {
+         System.out.println("Found Log4J - initialing Log4J");
          initLog4J(LOG4J_DEBUG);
       } else {
-         initJavaUtilLogging();
+         System.out.println("Log4J not available.  Configuring java.util.logging.");
+         if (debug)
+            initJavaUtilLogging(Level.FINEST);
+         else
+            initJavaUtilLogging(Level.FINE);
       }
    }
    
@@ -87,7 +92,7 @@ public class GenericLogConfig {
    }
    
    /** */
-   public static final void initJavaUtilLogging() {
+   public static final void initJavaUtilLogging(Level level) {
       LogManager logManager=LogManager.getLogManager();
       
       Logger logger=Logger.getLogger("");
@@ -95,7 +100,7 @@ public class GenericLogConfig {
       
       ConsoleHandler consoleHandler=new ConsoleHandler();
       consoleHandler.setFormatter(new LocalLogFormatter());
-      consoleHandler.setLevel(Level.FINEST);
+      consoleHandler.setLevel(level);
       logger.addHandler(consoleHandler);
       
       logger.setLevel(Level.ALL);
@@ -119,8 +124,6 @@ public class GenericLogConfig {
          }
       }
    }
-   
-   
    
    /**
    *

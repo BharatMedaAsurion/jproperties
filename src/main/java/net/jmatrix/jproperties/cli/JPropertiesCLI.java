@@ -107,6 +107,7 @@ public class JPropertiesCLI {
          if (ap.getBooleanArg("-vv")) {
             GenericLogConfig.debug=true;
          }
+         System.out.println("Starting logging.");
          GenericLogConfig.bootstrap();
       }
       

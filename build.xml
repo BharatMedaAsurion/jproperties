@@ -148,8 +148,9 @@
              manifest. -->
         <mkdir dir="build/dep-classes"/>
         <unjar src="jars/commons-logging.jar" dest="build/dep-classes"/>
-        <unjar src="jars/jackson-mapper-asl.jar" dest="build/dep-classes"/>
-        <unjar src="jars/jackson-core-asl.jar" dest="build/dep-classes"/>
+        <unjar src="jars/jackson-annotations-2.3.2.jar" dest="build/dep-classes"/>
+        <unjar src="jars/jackson-core-2.3.2.jar" dest="build/dep-classes"/>
+        <unjar src="jars/jackson-annotations-2.3.2.jar" dest="build/dep-classes"/>
 
         <jar destfile="build/${ant.project.name}_deps-${version}.jar">
             <fileset dir="build/dep-classes" includes="**/**" excludes="META-INF/**"/>
