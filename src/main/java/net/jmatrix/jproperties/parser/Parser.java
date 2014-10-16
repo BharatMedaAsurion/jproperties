@@ -60,7 +60,7 @@ public class Parser {
    }
    
    public static JProperties parse(String surl) throws MalformedURLException, IOException {
-      return parse(new URL(surl));
+      return parse(new URL(URLUtil.convertClasspathURL(surl)));
    }
    
    public static JProperties parse(File f) throws IOException {

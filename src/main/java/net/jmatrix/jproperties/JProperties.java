@@ -110,7 +110,9 @@ public class JProperties implements Map<String, Object> {
                     value instanceof Boolean) {
             put(key, value);
          } else if (value instanceof JProperties) {
-            put(key, value);
+            JProperties jp=(JProperties)value;
+            jp.parent=this;
+            put(key, jp);
          } else if (Map.class.isAssignableFrom(value.getClass())) {
             JProperties np=new JProperties(this, (Map)value);
             np.parent=this;
@@ -281,6 +283,9 @@ public class JProperties implements Map<String, Object> {
             // do nothing.
          } else if (oldval == null && newval != null) {
             // overwrite.
+            if (newval instanceof JProperties) {
+               ((JProperties) newval).parent=this;
+            }
             this.put(key, newval);
          } else {  // newval != null && oldval != null
             // merge.
@@ -429,7 +434,20 @@ public class JProperties implements Map<String, Object> {
             }
          } else if (value instanceof Map && !(value instanceof JProperties)) {
             JProperties jp=new JProperties(this, (Map)value);
-            return data.put(key, jp);
+            JProperties existing=getProperties(key);
+            if (existing != null) {
+               existing.deepMerge(jp);
+               return existing;
+            } else
+               return data.put(key, jp);
+         } else if (value instanceof JProperties) {
+            JProperties jp=(JProperties)value;
+            JProperties existing=getProperties(key);
+            if (existing != null) {
+               existing.deepMerge(jp);
+               return existing;
+            } else
+               return data.put(key, jp);
          } else if (value instanceof List) {
             return data.put(key, convertlist((List)value, this));
          } else {
