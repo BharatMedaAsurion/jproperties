@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.jmatrix.jproperties.parser.Parser;
@@ -22,7 +23,6 @@ import net.jmatrix.jproperties.util.ClassLogFactory;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 
 /**
@@ -67,7 +67,22 @@ public class JProperties implements Map<String, Object> {
    private static AtomicInteger atomicIdCounter=new AtomicInteger();
    
    int id=atomicIdCounter.getAndIncrement();
-
+   
+   /**
+    * Allows user to specify a set of global masking regular expresssions
+    * used when printing out properties.  
+    * 
+    * Properties often contain passwords or other sensitive information
+    * that we'd like to mask when printing to logs or stdout. 
+    * 
+    * maskingRegex is an ordered map of regular expressions, which are applied
+    * with String.replaceAll(key, value), in order, before 
+    * returning the toString() value of properties.
+    * 
+    * A common mask to mask most passords: 
+    * "([pP]assword[ =\":]+)[^\",]*([,\"])", "$1******$2"
+    */
+   static Map<String, String> maskingRegex=new TreeMap<String, String>();
    
    /** */
    public JProperties() {
@@ -127,11 +142,26 @@ public class JProperties implements Map<String, Object> {
       }
    }
    
-   
-   public String toString() {
-      return Parser.writeAsJson(this);
+   public static void addMasking(String pattern, String replace) {
+      maskingRegex.put(pattern, replace);
    }
    
+   public static void clearMasking() {
+      maskingRegex.clear();
+   }
+   
+   public String toString() {
+      String s=Parser.writeAsJson(this);
+      
+      if (maskingRegex != null && maskingRegex.size() > 0) {
+         for (String pattern:maskingRegex.keySet()) {
+            String replace=maskingRegex.get(pattern);
+            s=s.replaceAll(pattern, replace);
+         }
+      }
+      
+      return s;
+   }
    
    /** Used when creating a JProperties tree from a generic String/Object Map. */
    private static final List convertlist(List l, JProperties parent) {
@@ -240,7 +270,7 @@ public class JProperties implements Map<String, Object> {
    /** We no longer extend Properties, but some older systems may still
     * want Properties. */
    public Properties toProperties() {
-      WrappedProperties p= new WrappedProperties(this);
+      WrappedProperties p= new WrappedProperties(this, null);
       p.setAllowKeysWithNullValues(false);
       return p;
    }

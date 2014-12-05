@@ -58,7 +58,8 @@ public class JPropertiesCLI {
 "      Defaults to \".\" - can substitute any other characters\n" + 
 " \n" + 
 "   -o <file>\n" + 
-"      output file, if not, system.out";
+"      output file, if not, system.out\n"+
+"   -nm - do NOT mask passwords.  Default is true.\n";
 
 
    
@@ -87,7 +88,7 @@ public class JPropertiesCLI {
    //   -o <file>
    //      output file, if not, system.out
    //
-   //
+   //   -nm No masking of passwords.
    
    
    public static void main(String args[]) throws Exception {
@@ -96,8 +97,14 @@ public class JPropertiesCLI {
          System.exit(1);
       }
       
-      
+
       ArgParser ap=new ArgParser(args);
+      if (!ap.getBooleanArg("-nm", false)) {
+         System.out.println ("Masking passwords with "+"s / ([pP]assword[ =\":]+)[^\",]*([,\"]) / $1******$2/g");
+         JProperties.addMasking("([pP]assword[ =\":]+)[^\",]*([,\"])", "$1******$2");
+      } else {
+         System.out.println ("Not masking passwords.");
+      }
       
       String delim=ap.getStringArg("-d");
       String outfilename=ap.getStringArg("-o");
@@ -227,7 +234,7 @@ public class JPropertiesCLI {
             Parser.write(jp, new File(outfilename));
          } else {
             //Parser.write(jp, new OutputStreamWriter(System.out));
-            System.out.println(Parser.toJson(jp));
+            System.out.println(jp.toString());
             System.out.println();
          }
       }
