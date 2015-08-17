@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+import java.util.Set;
 
 import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
-import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.util.StreamUtil;
 import net.jmatrix.jproperties.util.URLUtil;
 
@@ -150,7 +150,13 @@ public class URLPropertiesLoader {
                
                JProperties props=new JProperties();
                props.setParent(parent);
-               props.addAll(props);
+               //props.addAll(props);
+               Set<Object> keyset=p.keySet();
+               for (Object key:keyset) {
+                  Object value=p.get(key);
+                  if (key != null && value != null)
+                     props.put(key.toString(), value.toString());
+               }
                result=props;
             } else {
                //JProperties props=Parser.parse(url);

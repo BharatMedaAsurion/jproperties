@@ -1,6 +1,9 @@
 
 JProperties Release Notes
 
+1.0.4 - 17 Aug 2015
+  - BUG: Fixed including java.util.properties files (and URLs) into jproperties.
+
 0.9.7 - 06 Oct 2014
   - Better unit tests
 
