@@ -1,0 +1,5 @@
+{
+   "path":".",
+   "sub":"$[sub.jproperties]",
+   "sub2":"$[sub2.jproperties]"
+}

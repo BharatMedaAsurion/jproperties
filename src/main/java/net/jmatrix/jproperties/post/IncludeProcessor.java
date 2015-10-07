@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
-import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
+import net.jmatrix.jproperties.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
 import org.apache.commons.logging.Log;

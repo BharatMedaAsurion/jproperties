@@ -1,10 +1,9 @@
-package net.jmatrix.jproperties.substitution;
+package net.jmatrix.jproperties;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.jmatrix.jproperties.JPRuntimeException;
-import net.jmatrix.jproperties.JProperties;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
 import org.apache.commons.logging.Log;
@@ -39,9 +38,10 @@ public final class SubstitutionProcessor {
    
    static final Pattern COMPLETE_PATTERN = Pattern.compile(COMPLETE_TOKEN_REGEX);
 
-   public static int MAX_RECURSIVE_SUBSTITUTIONS=10;
+   public static int MAX_RECURSIVE_SUBSTITUTIONS=20;
    
    public static boolean debug=false;
+
    
    /** 
     * Public facing method.
@@ -130,7 +130,7 @@ public final class SubstitutionProcessor {
       String key=subToken.getKey();
       String def=subToken.getDefault();
       
-      Object val=p.findValue(key);
+      Object val=p.internalFindValue(key);
       
       if (val == null) {
          return def;
@@ -192,14 +192,14 @@ public final class SubstitutionProcessor {
          // value=something ${key|default} something else
          // token will be '${key|default}
          String token = s.substring(matcher.start(), matcher.end());
-         log.debug("   Token: '"+token+"'");
+         log.debug("   Token: '"+token+"', props="+p.getDebugId());
          
          SubstitutionToken subToken=new SubstitutionToken(token);
          String key=subToken.getKey();
          String def=subToken.getDefault();
          
          
-         String replaceVal = p.findString(key);
+         String replaceVal = p.internalFindString(key);
 
          if (replaceVal != null) {
             log.debug("   Found value for token "+token+": "+replaceVal);

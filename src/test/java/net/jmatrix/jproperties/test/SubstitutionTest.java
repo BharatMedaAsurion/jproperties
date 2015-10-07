@@ -1,5 +1,6 @@
 package net.jmatrix.jproperties.test;
 
+import net.jmatrix.jproperties.JPRuntimeException;
 import net.jmatrix.jproperties.JProperties;
 
 import org.junit.Assert;
@@ -49,5 +50,14 @@ public class SubstitutionTest extends AbstractTest {
       
       jp.put("env", "prod");
       Assert.assertEquals(jp.getString("mode"), "live");
+   }
+   
+   @Test(expected=JPRuntimeException.class)
+   public void testRecursiveSubstitutionException() {
+      JProperties jp=new JProperties();
+      
+      jp.put("recursive.error.key", "This should cusse a recursion error ${recursive.error.key}");
+      
+      String s=jp.getString("recursive.error.key"); // should throw
    }
 }

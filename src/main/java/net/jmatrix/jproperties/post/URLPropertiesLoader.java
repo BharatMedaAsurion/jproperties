@@ -185,6 +185,7 @@ public class URLPropertiesLoader {
             log.info("Cannot load properties from  '"+surl+"', failonerror=false");
          }
       }
+      parent.resetDepth();
       return result;
    }
 }

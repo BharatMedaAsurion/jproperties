@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import net.jmatrix.jproperties.parser.Parser;
 import net.jmatrix.jproperties.post.IncludeProcessor;
-import net.jmatrix.jproperties.substitution.SubstitutionProcessor;
 import net.jmatrix.jproperties.util.ClassLogFactory;
 
 import org.apache.commons.logging.Log;
@@ -68,6 +67,15 @@ public class JProperties implements Map<String, Object> {
    
    int id=atomicIdCounter.getAndIncrement();
    
+   // Used to prevent infinite recursion.
+   public static int MAX_RECURSIVE_SUBSTITUTIONS=30;
+   static ThreadLocal<AtomicInteger> depthCount=new ThreadLocal<AtomicInteger>() {
+      @Override
+      public AtomicInteger initialValue() {
+         return new AtomicInteger(0);
+      }
+   };
+   
    /**
     * Allows user to specify a set of global masking regular expresssions
     * used when printing out properties.  
@@ -107,7 +115,8 @@ public class JProperties implements Map<String, Object> {
    /** */
    public JProperties(JProperties parent, Map<String, Object> map) {
       log.trace("Map constructor with parent:"+id);
-      this.parent=parent;
+      //this.parent=parent;
+      setParent(parent);
       if (map == null)
          throw new NullPointerException("Constructing JProperties from Null map.");
       addAll(map);
@@ -163,6 +172,16 @@ public class JProperties implements Map<String, Object> {
       return s;
    }
    
+   public int getId() {return id;}
+   
+   public String getDebugId() {
+      StringBuilder sb=new StringBuilder();
+      sb.append(id+"/"+getUrl());
+      if (parent != null)
+         sb.append("  parent: "+parent.id+"/"+parent.getUrl());
+      return sb.toString();
+   }
+   
    /** Used when creating a JProperties tree from a generic String/Object Map. */
    private static final List convertlist(List l, JProperties parent) {
       log.trace("Convert list");
@@ -199,6 +218,7 @@ public class JProperties implements Map<String, Object> {
    
    public void load(String surl) throws IOException {
       Parser.parseInto(this, surl);
+      resetDepth();
    }
    
    public void load(File f) throws MalformedURLException, IOException {
@@ -217,7 +237,28 @@ public class JProperties implements Map<String, Object> {
     * @return The value found by walking up the tree.
     */
    public Object findValue(String key) {
-      Object val=get(key);
+      log.trace("findValue("+key+") setting depthCount=0");
+      depthCount.get().set(0);
+      return internalFindValue(key);
+   }
+   
+   public void resetDepth() {
+      log.trace("Reset depth - setting depth=0");
+      depthCount.get().set(0);
+   }
+   
+   /** Should not be called publically.  declared public for SubstitutionProcessor.*/
+   Object internalFindValue(String key) {
+      Integer i=depthCount.get().getAndIncrement();
+      log.trace("  internalFindValue("+key+") "+i);
+      if (i > MAX_RECURSIVE_SUBSTITUTIONS) {
+         resetDepth();
+         throw new JPRuntimeException("Error: recursive replacement limit on '"+
+               key+"' id:"+id+" url:"+findUrl()+" "+i+" exceeds max "+MAX_RECURSIVE_SUBSTITUTIONS+
+               ".  Parent: "+(parent == null?"null":parent.id+"/"+parent.findUrl()));
+      }
+      
+      Object val=internalGet(key);
       //log.debug("findValue(): Path='"+getPath()+"', "+s+"="+val);
             
       if (val != null)
@@ -225,7 +266,7 @@ public class JProperties implements Map<String, Object> {
       else {
          if (parent != null) {
             //log.debug("Searching parent root="+isRoot()+" with url : "+parent.url);
-            return parent.findValue(key);
+            return parent.internalFindValue(key);
          } else {
             //log.debug("findValue(): parent is null at Path='"+getPath()+"'");
          }
@@ -239,13 +280,20 @@ public class JProperties implements Map<String, Object> {
    }
    
    public String findString(String key) {
-      Object o=findValue(key);
+      System.out.println ("findString("+key+") setting depthCount=0");
+      depthCount.get().set(0);
+      return internalFindString(key);
+   }
+   
+   String internalFindString(String key) {
+      Object o=internalFindValue(key);
       if (o != null)
          return o.toString();
       return null;
    }
    
    public void setParent(JProperties p) {
+      log.debug("Setting parent of "+id+" to "+(p == null?"null":p.id));
       parent=p;
       processInclusions=p.processInclusions;
       processSubstitutions=p.processSubstitutions;
@@ -334,6 +382,21 @@ public class JProperties implements Map<String, Object> {
    // overiding get to process complex keys and substitution.
    @Override
    public Object get(Object okey) {
+      log.trace("get("+okey+") setting depthCount=0");
+      depthCount.get().set(0);
+      return internalGet(okey);
+   }
+   
+   /** Should never be called by external callers. Public for access from SubstitutionProcessor */
+   Object internalGet(Object okey) {
+      Integer depth=depthCount.get().getAndIncrement();
+      log.trace("  internalGet("+okey+") "+depth);
+      if (depth > MAX_RECURSIVE_SUBSTITUTIONS) {
+         resetDepth();
+         throw new JPRuntimeException("Error: recursive replacement limit on '"+
+               okey+"' id:"+id+" url:"+findUrl()+" "+depth+" exceeds max "+MAX_RECURSIVE_SUBSTITUTIONS+
+               ".  Parent: "+(parent == null?"null":parent.id+"/"+parent.findUrl()));
+      }
       
       if (okey == null)
          return null;
@@ -389,11 +452,11 @@ public class JProperties implements Map<String, Object> {
       } else {
          String remainingKey=key.substring(splitKey[0].length()+2);
          
-         Object val=get(splitKey[0]);
+         Object val=internalGet(splitKey[0]);
          if (val == null) {
             return null;
          } else if (val instanceof JProperties) {
-            return ((JProperties)val).get(remainingKey);
+            return ((JProperties)val).internalGet(remainingKey);
          } else {
             log.warn("Unresolvable key '"+okey+"', at component '"+splitKey[0]+
                   "' does not return nested properties, rather "+

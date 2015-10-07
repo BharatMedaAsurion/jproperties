@@ -6,9 +6,16 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.jmatrix.jproperties.util.GenericLogConfig;
+
 public class AbstractTest {
    
    static DateFormat df=new SimpleDateFormat("HH:mm:ss.SSS");
+   
+   static {
+      GenericLogConfig.debug=true;
+      GenericLogConfig.bootstrap();
+   }
    
    protected void log(String s) {
       log(s, null);
