@@ -1,6 +1,10 @@
 
 JProperties Release Notes
 
+1.0.5 - 7 Oct 2015
+  - Infinite Recursion Detection in substitution.
+  - Unit tests for above.
+
 1.0.4 - 17 Aug 2015
   - BUG: Fixed including java.util.properties files (and URLs) into jproperties.
 
