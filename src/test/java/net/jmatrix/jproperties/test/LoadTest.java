@@ -26,4 +26,16 @@ public class LoadTest extends AbstractTest {
       Assert.assertNotNull(bar);
       Assert.assertTrue("", bar.equals("bar"));
    }
+   
+   @Test
+   public void testLoadFromString() throws Exception {
+      String json=
+            "{\"key\":\"aval\",\"sub\":\"val of key: ${key}\"}";
+      
+      JProperties jp=new JProperties();
+      jp.loadFromString(json);
+      
+      Assert.assertTrue("Should be size=2", jp.size()==2);
+      Assert.assertTrue(jp.getString("sub").contains("aval"));
+   }
 }

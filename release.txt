@@ -1,6 +1,9 @@
 
 JProperties Release Notes
 
+1.0.6 - 18 Feb 2016
+  - Load properties from json String in memory (not file or URL)
+
 1.0.5 - 7 Oct 2015
   - Infinite Recursion Detection in substitution.
   - Unit tests for above.
@@ -11,15 +14,14 @@ JProperties Release Notes
 0.9.7 - 06 Oct 2014
   - Better unit tests
 
-
-0.9.1 - 08jULY2014
+0.9.1 - 8 July 2014
   - Command line tool for splitting and converting to java.util.Properties
   - WrappedProperties - provides java.util.Properties view of a JProperties tree
   - A unit test or two.
   - new JPRuntimeException
   - Spring integration with JPropertiesSpringHolder
 
-0.9.0 - 25June2014
+0.9.0 - 25 June 2014
   - First push to maven central via Sonatype
   
   

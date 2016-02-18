@@ -93,7 +93,7 @@ public class Parser {
       parseInto(p, new InputStreamReader(is), url.toString());
    }
    
-   private static void parseInto(JProperties props, Reader r, String surl) throws JsonParseException, JsonMappingException, IOException {
+   public static void parseInto(JProperties props, Reader r, String surl) throws JsonParseException, JsonMappingException, IOException {
       TypeReference<JProperties> typeRef  = 
             new TypeReference<JProperties>() {}; 
              

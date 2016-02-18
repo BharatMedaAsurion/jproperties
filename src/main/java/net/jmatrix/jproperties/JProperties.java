@@ -2,6 +2,7 @@ package net.jmatrix.jproperties;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,13 +16,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.jmatrix.jproperties.parser.Parser;
-import net.jmatrix.jproperties.post.IncludeProcessor;
-import net.jmatrix.jproperties.util.ClassLogFactory;
-
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import net.jmatrix.jproperties.parser.Parser;
+import net.jmatrix.jproperties.post.IncludeProcessor;
+import net.jmatrix.jproperties.util.ClassLogFactory;
 
 
 /**
@@ -227,6 +228,10 @@ public class JProperties implements Map<String, Object> {
    
    public void load(URL url) throws IOException {
       load(url.toString());
+   }
+   
+   public void loadFromString(String json) throws IOException {
+      Parser.parseInto(this, new StringReader(json), null);
    }
    
    /**
