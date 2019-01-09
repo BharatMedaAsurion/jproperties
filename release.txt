@@ -1,6 +1,9 @@
 
 JProperties Release Notes
 
+1.0.7 - 4 Jan 2019
+  - Upgraded jackson libraries to latest versions as identified by Synk
+
 1.0.6 - 18 Feb 2016
   - Load properties from json String in memory (not file or URL)
 
